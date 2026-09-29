@@ -1,0 +1,23 @@
+/* Shared return link for every game menu. */
+a.solums-arcade-home {
+  position:fixed; top:max(10px,env(safe-area-inset-top)); left:max(12px,env(safe-area-inset-left));
+  z-index:200; display:inline-flex; align-items:center; justify-content:center;
+  min-height:44px; box-sizing:border-box; padding:10px 16px; gap:8px;
+  border:1px solid #d3b776; border-radius:12px; background:#19202a; color:#fff0c9;
+  font:700 14px/1.2 system-ui,sans-serif; text-decoration:none; white-space:nowrap;
+  box-shadow:0 3px 14px #0005; touch-action:manipulation;
+}
+a.solums-arcade-home:hover { background:#303b48; border-color:#ffe1a0; }
+a.solums-arcade-home:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+#menuScreen.arcade-menu, #menu.arcade-menu, #setup.arcade-menu, #startScreen.arcade-menu {
+  padding-top:calc(68px + env(safe-area-inset-top)); box-sizing:border-box;
+}
+.arcade-menu > .menu-card, .arcade-menu > .panel, .arcade-menu > .card {
+  max-height:calc(100dvh - 88px - env(safe-area-inset-top)); overflow:auto;
+}
+#toolbar > a.solums-arcade-home { position:static; flex-shrink:0; }
+#app:not([data-mode="home"]) #toolbar > a.solums-arcade-home { display:none; }
+#app[data-mode="home"] #homeButton { display:none; }
+#app[data-mode="home"].toolbar-hidden .toolbar { transform:none; opacity:1; pointer-events:auto; }
+#app[data-mode="home"] #hideToolbarButton, #app[data-mode="home"] #showToolbarButton { display:none; }
+@media(max-width:480px) { a.solums-arcade-home { padding:10px 12px; font-size:13px; } }

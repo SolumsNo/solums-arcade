@@ -220,8 +220,8 @@ body.large-targets #orchestra .label{font-size:clamp(14px,1.5vw,19px)}
 @media(max-height:500px) and (min-aspect-ratio:4/3){#orchestra{width:min(100vw,calc((100svh - 85px)*16/9));top:52%}.marquee{top:8px;font-size:20px}#memoryHint{top:33px;font-size:11px}.concertControls{bottom:3px}.concertControls button{padding:6px 10px}#orchestra .musician .label{font-size:9px;padding:2px 7px}}
 
 .arcade-back{position:fixed;bottom:12px;left:14px;z-index:100;color:#f2dfbb;background:#17120ddd;border:1px solid #c6a67855;border-radius:10px;padding:9px 12px;text-decoration:none;font:12px Arial,sans-serif}.arcade-back:focus-visible{outline:3px solid #fff}@media(max-width:500px){.arcade-back{font-size:10px;padding:7px 9px}}</style>
-</head>
-<body><a class="arcade-back" href="../index.html">← Solums Arcade</a>
+<link rel="stylesheet" href="../assets/arcade-nav.css"></head>
+<body>
 <div id="app">
   <main id="stage" aria-label="Lilly Louises orkester">
     <div class="backwall"></div><div class="spot one"></div><div class="spot two"></div><div class="floor"></div>
@@ -234,7 +234,7 @@ body.large-targets #orchestra .label{font-size:clamp(14px,1.5vw,19px)}
     <div id="holdCorner" aria-hidden="true"></div>
   </main>
 
-  <section id="startScreen">
+  <section id="startScreen" class="arcade-menu"><a class="solums-arcade-home" href="../index.html" aria-label="Til Solums Arcade">← Solums Arcade</a>
     <div class="startCard">
       <div class="startIcon">VELKOMMEN TIL TEATERET</div>
       <h1>Lilly Louises orkester</h1>

@@ -19,12 +19,12 @@
 </style>
 <link rel="stylesheet" href="assets/finish.css">
 <script src="assets/panic-art.js"></script>
-</head>
+<link rel="stylesheet" href="assets/arcade-nav.css"></head>
 <body>
 <main id="app">
 <canvas id="gameCanvas"></canvas>
 <div id="hud" class="hidden"><div id="timePanel" class="time-panel"><span>TID</span><strong id="timeValue">60</strong></div><button id="pauseBtn" class="pause-btn">Ⅱ</button><div id="scoreboards"></div></div>
-<section id="menu" class="screen"><div class="panel"><header class="title-row"><div class="title-cushion"><span></span></div><div><p class="eyebrow">TABLETOP REAKSJONSSPILL</p><h1>Prompepute Panic</h1><p class="subtitle">Trykk raskt – og lag et voldsomt leven!</p></div></header>
+<section id="menu" class="arcade-menu screen"><a class="solums-arcade-home" href="index.html" aria-label="Til Solums Arcade">← Solums Arcade</a><div class="panel"><header class="title-row"><div class="title-cushion"><span></span></div><div><p class="eyebrow">TABLETOP REAKSJONSSPILL</p><h1>Prompepute Panic</h1><p class="subtitle">Trykk raskt – og lag et voldsomt leven!</p></div></header>
 <div class="settings-grid">
 <fieldset><legend>Spillere</legend><div class="segmented" id="playerOptions"><button data-value="1">1</button><button data-value="2" class="selected">2</button><button data-value="3">3</button><button data-value="4">4</button></div></fieldset>
 <fieldset><legend>Vanskelighetsgrad</legend><select id="difficulty"><option value="easy">Enkel</option><option value="normal" selected>Normal</option><option value="hard">Vanskelig</option><option value="chaos">Kaosmodus</option></select></fieldset>
