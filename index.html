@@ -192,6 +192,21 @@
       line-height: 1.55;
     }
 
+    .player-count {
+      display: inline-flex;
+      justify-self: start;
+      align-items: center;
+      margin: 3px 0 12px;
+      padding: 6px 11px;
+      border: 1px solid rgb(255 231 177 / 30%);
+      border-radius: 999px;
+      background: #081320cc;
+      color: #fff0cb;
+      font-size: .85rem;
+      font-weight: 750;
+      line-height: 1.3;
+    }
+
     .play {
       display: flex;
       align-items: center;
@@ -277,47 +292,54 @@
     </header>
 
     <section class="games" aria-label="Velg spill">
-      <a class="game game--pong" href="ping-pong.html" aria-label="Start Ping Pong">
+      <a class="game game--pong" href="ping-pong.html" aria-label="Start Ping Pong – 2 spillere">
         <div class="icon" aria-hidden="true">🏓</div>
         <h2>Ping Pong</h2>
+        <span class="player-count">2 spillere</span>
         <p>Klassisk bordtennis med fart, serving og fyrverkeri.</p>
         <div class="play">START SPILL <span class="arrow" aria-hidden="true">→</span></div>
       </a>
 
-      <a class="game game--panic" href="prompepute-panic.html" aria-label="Start Prompepute Panic">
+      <a class="game game--panic" href="prompepute-panic.html" aria-label="Start Prompepute Panic – opptil 4 spillere">
         <div class="icon" aria-hidden="true">💨</div>
         <h2>Prompepute Panic</h2>
+        <span class="player-count">Opptil 4 spillere</span>
         <p>Prompeputer, overraskelser og latter for hele gjengen.</p>
         <div class="play">START SPILL <span class="arrow" aria-hidden="true">→</span></div>
       </a>
 
-      <a class="game game--writing" href="skrivegoy.html" aria-label="Start Skrivegøy">
+      <a class="game game--writing" href="skrivegoy.html" aria-label="Start Skrivegøy – 1 spiller">
         <div class="icon" aria-hidden="true">✍️</div>
         <h2>Skrivegøy</h2>
+        <span class="player-count">1 spiller</span>
         <p>Skriv på skrivemaskin, lytt til bokstavene og samle stjerner.</p>
         <div class="play">START SPILL <span class="arrow" aria-hidden="true">→</span></div>
       </a>
 
-      <a class="game game--pirate" href="forbannede-farvann.html" aria-label="Start Forbannede farvann">
+      <a class="game game--pirate" href="forbannede-farvann.html" aria-label="Start Forbannede farvann – opptil 2 spillere">
         <div class="icon" aria-hidden="true">🏴‍☠️</div>
         <h2>Forbannede farvann</h2>
+        <span class="player-count">Opptil 2 spillere</span>
         <p>Lars-Christians Kanonfest med sjørøvere og sjøuhyrer.</p>
         <div class="play">START SPILL <span class="arrow" aria-hidden="true">→</span></div>
       </a>
-      <a class="game game--rocket" href="rakettbudet/index.html" aria-label="Start Rakettbudet" style="--accent:#ffc078;background:linear-gradient(90deg,#061425ee,#06142599 60%,#06142533),url('rakettbudet/assets/space.png') center/cover">
+      <a class="game game--rocket" href="rakettbudet/index.html" aria-label="Start Rakettbudet – 1 spiller" style="--accent:#ffc078;background:linear-gradient(90deg,#061425ee,#06142599 60%,#06142533),url('rakettbudet/assets/space.png') center/cover">
         <div class="icon" aria-hidden="true">🚀</div>
         <h2>Rakettbudet</h2>
+        <span class="player-count">1 spiller</span>
         <p>Skyt asteroider, finn protonkrystaller og samle gull. Hold forsvaret i live så lenge du kan.</p>
         <div class="play">START SPILL <span class="arrow" aria-hidden="true">→</span></div>
       </a>
 
-      <a class="game game--marble" href="Kulejungel/index.html" aria-label="Start Kulejungel" style="--accent:#e8c98d;background:linear-gradient(90deg,#241b10ee,#241b10a0 60%,#241b1044),url('Kulejungel/assets/ground.jpg') center/cover">
+      <a class="game game--marble" href="Kulejungel/index.html" aria-label="Start Kulejungel – opptil 2 spillere" style="--accent:#e8c98d;background:linear-gradient(90deg,#241b10ee,#241b10a0 60%,#241b1044),url('Kulejungel/assets/ground.jpg') center/cover">
         <div class="icon" aria-hidden="true">🔮</div><h2>Kulejungel</h2>
+        <span class="player-count">Opptil 2 spillere</span>
         <p>Ekte glassfølelse, mørk jord og småstein. Sikt mot riktig hull – alene eller to sammen.</p>
         <div class="play">START SPILL <span class="arrow" aria-hidden="true">→</span></div>
       </a>
-      <a class="game game--orchestra" href="Orkester/index.html" aria-label="Start Lilly Louises orkester" style="--accent:#edc885;background:linear-gradient(90deg,#1b100bef,#1b100b99 60%,#1b100b44),url('Orkester/assets/ensemble.jpg') center/cover">
+      <a class="game game--orchestra" href="Orkester/index.html" aria-label="Start Lilly Louises orkester – 1 spiller" style="--accent:#edc885;background:linear-gradient(90deg,#1b100bef,#1b100b99 60%,#1b100b44),url('Orkester/assets/ensemble.jpg') center/cover">
         <div class="icon" aria-hidden="true">🎵</div><h2>Lilly Louises orkester</h2>
+        <span class="player-count">1 spiller</span>
         <p>Seks dyr på samme scene. Spill instrumentene, lag konsert eller hør og gjenta.</p>
         <div class="play">START SPILL <span class="arrow" aria-hidden="true">→</span></div>
       </a>
