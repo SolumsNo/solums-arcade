@@ -1,0 +1,23 @@
+name: Import verified Arcade release
+on:
+  push:
+    paths:
+      - '.github/arcade-import.json'
+      - '.github/workflows/import-arcade.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify the finished games
+        run: python3 .github/import-arcade.py
+      - name: Save the verified release
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html '*.html' assets Kulejungel Orkester rakettbudet LES-MEG.txt
+          git diff --cached --quiet || git commit -m 'Update Solums Arcade with all seven games and realistic artwork'
+          git push origin HEAD:main
