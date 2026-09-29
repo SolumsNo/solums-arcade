@@ -1,0 +1,13 @@
+SOLUMS ARCADE – 7 SPILL
+
+Pakk ut hele ZIP-filen. Åpne index.html i Solums-Arcade-mappen.
+Behold undermappene sammen med hovedmenyen.
+
+Kulejungel: dra og slipp den aktive klinkekula. Én eller to spillere.
+Orkester: trykk på dyrene på scenen, eller bruk tastene 1–6.
+Spill fritt, Hør og gjenta, eller Liten konsert.
+
+De to nye spillene har alle bilder, videoer og lyder lagret lokalt.
+Lyd starter etter første trykk.
+
+Made by pappa

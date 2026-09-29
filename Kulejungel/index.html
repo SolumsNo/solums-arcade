@@ -1,0 +1,3002 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Kulejungel · Naturutgaven</title>
+<!-- Kulejungel v10.6: store dyr, riktig gangretning, sjangling og hulltriks -->
+<style>
+:root{
+  --panel: rgba(15,29,29,.92);
+  --ink:#f8fff8;
+  --muted:#c8d8c9;
+  --accent:#ffe66d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07150f;color:var(--ink);font-family:Inter,ui-rounded,"Segoe UI",Arial,sans-serif;touch-action:none}
+button,input,select{font:inherit}
+#app{position:fixed;inset:0}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;background:#24180f}
+.screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;z-index:20}
+#setup{background:
+  radial-gradient(circle at 15% 15%,rgba(202,153,83,.24),transparent 28%),
+  radial-gradient(circle at 85% 75%,rgba(118,77,42,.25),transparent 32%),
+  linear-gradient(135deg,#161009,#382617 55%,#120d08)}
+.card{width:min(980px,96vw);max-height:94vh;overflow:auto;background:var(--panel);border:2px solid rgba(255,255,255,.16);border-radius:28px;padding:28px;box-shadow:0 24px 70px rgba(0,0,0,.45);backdrop-filter:blur(12px)}
+.logo{
+  text-align:center;
+  margin:-4px auto 24px;
+  padding:18px 18px 16px;
+  max-width:880px;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 50% 120%,rgba(255,227,106,.20),transparent 54%),
+    linear-gradient(180deg,rgba(28,68,42,.78),rgba(13,38,25,.44));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 12px 32px rgba(0,0,0,.22);
+}
+.logoTitle{
+  display:inline-block;
+  position:relative;
+  margin:0;
+  padding:4px 18px 8px;
+  font-size:clamp(62px,9vw,124px);
+  font-weight:1000;
+  letter-spacing:.015em;
+  line-height:.88;
+  color:#fffdf3 !important;
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  -webkit-text-fill-color:#fffdf3 !important;
+  -webkit-text-stroke:clamp(1px,.16vw,2px) rgba(255,255,255,.98);
+  paint-order:stroke fill;
+  text-shadow:
+    -5px 5px 0 #ef3e45,
+    -2px 7px 0 #ff922c,
+     2px 9px 0 #ffd83b,
+     5px 11px 0 #43c768,
+     8px 13px 0 #2e88ef,
+    11px 15px 0 #6255ea,
+    14px 17px 0 #a34bd0,
+    0 22px 30px rgba(0,0,0,.52);
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.22));
+}
+.logoTitle::after{
+  content:"";
+  position:absolute;
+  left:7%;
+  right:7%;
+  bottom:-8px;
+  height:8px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#f44336,#ff8c22,#ffd52e,#3ecf5b,#2a8cff,#6255ea,#a34bd0);
+  box-shadow:0 3px 10px rgba(0,0,0,.28);
+}
+.rainbow{
+  background:linear-gradient(90deg,#f44336 2%,#ff8c22 18%,#ffd52e 34%,#3ecf5b 49%,#2a8cff 65%,#6255ea 81%,#a34bd0 98%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.logo p{
+  font-size:clamp(18px,2vw,25px);
+  font-weight:800;
+  color:#eef6e8;
+  margin:22px 0 0;
+  text-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+.logoBalls{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:clamp(7px,1.2vw,14px);
+  margin:17px auto 2px;
+}
+.logoBall{
+  width:clamp(15px,2.1vw,24px);
+  aspect-ratio:1;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.70);
+  box-shadow:inset -4px -5px 7px rgba(0,0,0,.23),inset 3px 3px 5px rgba(255,255,255,.30),0 4px 6px rgba(0,0,0,.28);
+}
+.madeBy{
+  margin:20px 0 2px;
+  text-align:center;
+  font-size:clamp(15px,1.8vw,19px);
+  font-weight:900;
+  letter-spacing:.08em;
+  color:#e8f1e4;
+  opacity:.92;
+}
+.madeBy span{
+  display:inline-block;
+  padding:8px 18px;
+  border-top:1px solid rgba(255,255,255,.16);
+}
+.modeRow{display:flex;gap:12px;justify-content:center;margin:22px 0;flex-wrap:wrap}
+.modeBtn{border:0;border-radius:18px;padding:14px 24px;background:#294838;color:white;cursor:pointer;font-weight:800;font-size:20px;box-shadow:inset 0 -4px rgba(0,0,0,.18)}
+.modeBtn.active{background:#f1c746;color:#1b241b;transform:translateY(-2px)}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.playerCard{background:rgba(255,255,255,.07);border-radius:22px;padding:18px;border:1px solid rgba(255,255,255,.12)}
+.playerCard h2{margin:0 0 12px;font-size:24px}
+label{display:block;color:#d7e4d8;font-weight:700;margin:10px 0 6px}
+input,select{width:100%;border:2px solid rgba(255,255,255,.18);background:#10281b;color:white;border-radius:14px;padding:13px 14px;outline:none}
+input:focus,select:focus{border-color:#ffe66d}
+option{background:#10281b;color:white}
+.helpText{font-size:14px;color:#aebfae;margin-top:8px;line-height:1.4}
+.roundSettings{margin-top:18px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:18px}
+.roundSettings h2{margin:0 0 10px;font-size:24px}
+.roundGrid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;align-items:end}
+.roundValue{display:none}
+.roundHint{margin-top:9px;font-size:14px;line-height:1.45;color:#b7c8b8}
+.stopBtn{background:rgba(88,25,22,.88)!important;border-color:rgba(255,180,160,.20)!important;padding:8px 11px!important;font-size:14px!important}
+#fireworksLayer{position:absolute;inset:0;z-index:11;pointer-events:none}
+
+#fireworksLayer{
+  background:transparent !important;
+  pointer-events:none;
+  z-index:11;
+}
+#game{z-index:1}
+@media(max-width:760px){.roundGrid{grid-template-columns:1fr}}
+.startBtn{width:100%;margin-top:20px;border:0;border-radius:22px;padding:18px 24px;font-size:clamp(22px,3vw,34px);font-weight:1000;background:linear-gradient(#ffe96b,#e4ae22);color:#172014;cursor:pointer;box-shadow:0 7px 0 #9d7414,0 14px 35px rgba(0,0,0,.28)}
+.startBtn:active{transform:translateY(4px);box-shadow:0 3px 0 #9d7414}
+.tiny{font-size:13px;color:#a9baa9;text-align:center;margin-top:14px;line-height:1.4}
+#hud{position:absolute;inset:0;pointer-events:none;z-index:8;display:none}
+.topbar{position:absolute;left:14px;right:14px;top:12px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.hudPlayer{background:rgba(6,18,12,.76);border:1px solid rgba(255,255,255,.18);padding:9px 14px;border-radius:16px;min-width:190px;box-shadow:0 6px 18px rgba(0,0,0,.25);backdrop-filter:blur(8px)}
+.hudName{font-size:18px;font-weight:900}
+.hudScore{color:#dbe6da;font-size:14px;margin-top:3px}
+.controls{display:flex;gap:8px;pointer-events:auto}
+.iconBtn{border:0;border-radius:14px;padding:10px 13px;background:rgba(6,18,12,.8);color:#fff;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.16)}
+.centerTitle{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:rgba(6,18,12,.72);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:8px 18px;font-size:18px;font-weight:1000;letter-spacing:.04em}
+#messageLayer{position:absolute;inset:0;pointer-events:none;z-index:12}
+.popMessage{position:absolute;transform:translate(-50%,-50%) scale(.3);font-size:clamp(28px,4vw,60px);font-weight:1000;text-shadow:0 4px 0 rgba(0,0,0,.38),0 8px 22px rgba(0,0,0,.4);animation:pop .95s ease-out forwards;white-space:nowrap}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-8deg)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.25) rotate(3deg)}65%{opacity:1;transform:translate(-50%,-65%) scale(1)}100%{opacity:0;transform:translate(-50%,-110%) scale(.9)}}
+#finish{display:none;background:rgba(3,12,8,.74);z-index:30}
+.finishCard{text-align:center;width:min(680px,94vw);background:rgba(13,34,21,.96);border-radius:30px;padding:30px;border:2px solid rgba(255,255,255,.2);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.finishCard h1{font-size:clamp(42px,7vw,80px);margin:0}
+.finishCard p{font-size:22px;color:#dce9dc}
+.finishBtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.finishBtns button{border:0;border-radius:18px;padding:14px 22px;font-weight:900;font-size:18px;cursor:pointer}
+.primary{background:#ffe36a;color:#152016}.secondary{background:#315441;color:#fff}
+@media(max-width:760px){
+  .players{grid-template-columns:1fr}
+  .card{padding:20px}
+  .centerTitle{display:none}
+  .hudPlayer{min-width:auto}
+}
+:root{--panel:rgba(20,29,22,.94);--ink:#fff9e9;--muted:#cfceb9;--accent:#efd393}
+#setup{background:linear-gradient(110deg,#0c180dc9,#191b0b66),url('assets/ground.jpg') center/cover}
+.screen{padding:20px;touch-action:pan-y}.card{width:min(920px,96vw);padding:30px 40px;border:1px solid #e0d4ad44;background:linear-gradient(135deg,#142619ee,#152016f2);border-radius:26px;box-shadow:0 24px 100px #0009}
+.logo{background:none;border:0;box-shadow:none;padding:10px;margin:0 auto 20px;position:relative}
+.logo::before{content:'NATURUTGAVEN · MADE BY PAPPA';font-size:10px;letter-spacing:.3em;color:#d5c59e;display:block;margin:3px 0 20px}
+.logoTitle{font-family:Georgia,serif;font-size:clamp(40px,7vw,76px);font-weight:400;letter-spacing:.015em;line-height:1.1;color:#f7e8c8!important;-webkit-text-fill-color:#f7e8c8!important;-webkit-text-stroke:0;text-shadow:0 4px 24px #0005;filter:none;padding:0}
+.logoTitle::after{display:none}.logo p{font-size:16px;font-weight:400;line-height:1.6;margin:13px auto 0;color:#c5d0b9;max-width:550px}.logoBalls{margin-top:18px;gap:12px}.logoBall{width:18px;border:1px solid #fffa;box-shadow:inset -4px -5px 6px #0005,inset 3px 3px 4px #fffa,0 3px 5px #0005}
+.modeRow{margin:20px 0;gap:8px}.modeBtn{font-size:14px;padding:11px 20px;border-radius:12px;font-weight:600;background:#ffffff0d;box-shadow:none;border:1px solid #fff2}.modeBtn.active{background:#e7cb8e;transform:none;color:#28311b;border-color:#e7cb8e}
+.playerCard,.roundSettings{border-radius:16px;background:#ffffff04;border:1px solid #d7d9b621;padding:17px}.playerCard h2,.roundSettings h2{font-size:17px;font-weight:500;margin:0 0 10px;color:#eee2c6}label{font-size:12px;font-weight:500;color:#bcc8b2}input,select{padding:11px;font-size:14px;border-radius:9px;border:1px solid #e3dfb92c;background:#101e14}input:focus,select:focus{border-color:#e4c88b}.helpText,.roundHint{font-size:11px;line-height:1.5;color:#a7b29d}
+.startBtn{background:#e8cb8c;color:#223018;font-size:21px;border-radius:13px;box-shadow:0 4px 0 #927647;padding:17px;font-weight:700}.tiny{font-size:11px;color:#a3b097}.madeBy{display:none}
+.topbar{top:12px;left:16px;right:16px}.hudPlayer{background:#0d1b12df;border:1px solid #e8d5a54d;border-radius:12px;min-width:170px}.hudName{font-family:Georgia,serif;font-size:19px;font-weight:400;color:#f1e2be}.hudScore{font-size:12px;color:#cdd3ba}.iconBtn{border-radius:10px;font-size:12px;padding:10px;background:#112017e8;border:1px solid #e8d5a53b}.centerTitle{font-size:12px;font-weight:500;background:#102018d9;border-radius:10px;color:#e4d2aa;padding:10px}
+.finishCard{background:#142318f2;border:1px solid #e7ce9466}.finishCard h1{font-family:Georgia,serif;font-size:48px;font-weight:400;color:#efd59d}.finishCard p{font-size:18px}
+@media(max-width:760px){.card{padding:22px}.players{grid-template-columns:1fr}.logoTitle{font-size:45px}.logo p{font-size:14px}.hudPlayer{min-width:0;padding:8px}.hudName{font-size:14px}.controls{gap:4px;flex-wrap:wrap;justify-content:center;max-width:180px}.iconBtn{font-size:10px;padding:7px}.topbar{gap:5px;left:8px;right:8px}.logo::before{font-size:8px}.hudScore{font-size:10px}}
+body.two-players .centerTitle{display:none}
+
+.arcade-back{position:fixed;bottom:12px;left:14px;z-index:100;color:#f2dfbb;background:#17120ddd;border:1px solid #c6a67855;border-radius:10px;padding:9px 12px;text-decoration:none;font:12px Arial,sans-serif}.arcade-back:focus-visible{outline:3px solid #fff}@media(max-width:500px){.arcade-back{font-size:10px;padding:7px 9px}}</style>
+</head>
+<body><a class="arcade-back" href="../index.html">← Solums Arcade</a>
+<div id="app">
+  <canvas id="game"></canvas>
+  <canvas id="fireworksLayer"></canvas>
+
+  <div id="hud">
+    <div class="topbar">
+      <div id="hudP1" class="hudPlayer"><div class="hudName">Spiller 1</div><div class="hudScore">0 / 7 kuler i mål</div></div>
+      <div class="centerTitle">🌿 KULEJUNGEL 🌿</div>
+      <div class="controls">
+        <button class="iconBtn" id="soundBtn">🔊 Lyd</button>
+        <button class="iconBtn" id="fullBtn">⛶ Fullskjerm</button>
+        <button class="iconBtn stopBtn" id="stopBtn">■ Stopp</button>
+        <button class="iconBtn" id="setupBtn">⚙ Oppsett</button>
+      </div>
+      <div id="hudP2" class="hudPlayer" style="display:none;text-align:right"><div class="hudName">Spiller 2</div><div class="hudScore">0 / 7 kuler i mål</div></div>
+    </div>
+  </div>
+
+  <div id="messageLayer"></div>
+  <div id="loadingGame" style="display:none;position:absolute;inset:0;z-index:50;background:rgba(8,18,12,.92);align-items:center;justify-content:center;text-align:center;color:white;font-family:inherit">
+    <div style="padding:28px 34px;border-radius:24px;background:rgba(255,255,255,.08);font-size:26px;font-weight:900">
+      🌿 Lager Kulejungel-banen…
+      <div style="font-size:15px;font-weight:600;margin-top:10px;color:#d7e5d5">Et lite øyeblikk</div>
+    </div>
+  </div>
+
+  <section id="setup" class="screen">
+    <div class="card">
+      <div class="logo">
+        <h1 class="logoTitle">KULEJUNGEL</h1>
+        <div class="logoBalls" aria-hidden="true">
+          <span class="logoBall" style="background:#ef3e45"></span>
+          <span class="logoBall" style="background:#ff8f27"></span>
+          <span class="logoBall" style="background:#ffd83b"></span>
+          <span class="logoBall" style="background:#43c768"></span>
+          <span class="logoBall" style="background:#2e88ef"></span>
+          <span class="logoBall" style="background:#6255ea"></span>
+          <span class="logoBall" style="background:#a34bd0"></span>
+        </div>
+        <p>Sving fingeren og slipp – send kulene av gårde som klinkekuler gjennom jungelen!</p>
+      </div>
+
+      <div class="modeRow">
+        <button class="modeBtn active" data-players="1">👤 1 spiller</button>
+        <button class="modeBtn" data-players="2">👥 2 spillere samtidig</button>
+      </div>
+
+      <div class="players">
+        <div class="playerCard">
+          <h2>Spiller 1</h2>
+          <label for="name1">Navn</label>
+          <input id="name1" value="Spiller 1" maxlength="24">
+          <label for="diff1">Vanskelighetsgrad</label>
+          <select id="diff1">
+            <option value="veryeasy">Veldig lett – mye hjelp</option>
+            <option value="easy" selected>Lett</option>
+            <option value="normal">Middels</option>
+            <option value="hard">Utfordrende</option>
+          </select>
+          <div class="helpText">På de letteste nivåene hjelper banen kula mot riktig hull, fallhullene er mindre og kulene er lettere å styre.</div>
+        </div>
+
+        <div class="playerCard" id="p2Card" style="opacity:.38;pointer-events:none">
+          <h2>Spiller 2</h2>
+          <label for="name2">Navn</label>
+          <input id="name2" value="Spiller 2" maxlength="24">
+          <label for="diff2">Vanskelighetsgrad</label>
+          <select id="diff2">
+            <option value="veryeasy">Veldig lett – mye hjelp</option>
+            <option value="easy" selected>Lett</option>
+            <option value="normal">Middels</option>
+            <option value="hard">Utfordrende</option>
+          </select>
+          <div class="helpText">Spiller 2 kan ha en helt annen vanskelighetsgrad enn spiller 1.</div>
+        </div>
+      </div>
+
+      <div class="roundSettings">
+        <h2>Omgang</h2>
+        <div class="roundGrid">
+          <div>
+            <label for="roundMode">Hvordan skal spillet avsluttes?</label>
+            <select id="roundMode">
+              <option value="unlimited" selected>Ubegrenset – spill til noen trykker Stopp</option>
+              <option value="score">Spill til en poenggrense</option>
+              <option value="time">Spill i et bestemt antall minutter</option>
+            </select>
+          </div>
+          <div id="scoreTargetWrap" class="roundValue">
+            <label for="scoreTarget">Poenggrense</label>
+            <input id="scoreTarget" type="number" min="1000" step="500" value="10000">
+          </div>
+          <div id="timeTargetWrap" class="roundValue">
+            <label for="timeTarget">Tid i minutter</label>
+            <input id="timeTarget" type="number" min="1" step="1" value="5">
+          </div>
+        </div>
+        <div id="roundHint" class="roundHint">
+          Ubegrenset er standard: når alle sju kulene er i mål kommer fyrverkeri, kulene settes opp igjen og spillet fortsetter med samme poengsum.
+        </div>
+      </div>
+
+      <button id="startBtn" class="startBtn">START KULEJUNGEL</button>
+      <div class="tiny">
+        Dra/sving den aktive kula og slipp – jo raskere fingerbevegelse, desto hardere skytes kula av gårde.<br>
+        Naturtro materialer og innspilte lyder. Spillet virker uten internett når hele mappen er lastet ned.
+      </div>
+      <div class="madeBy"><span>Made by Pappa</span></div>
+    </div>
+  </section>
+
+  <section id="finish" class="screen">
+    <div class="finishCard">
+      <h1>🎉 Fantastisk! 🎉</h1>
+      <p id="finishText">Alle kulene er i mål!</p>
+      <div class="finishBtns">
+        <button id="againBtn" class="primary">Spill en gang til</button>
+        <button id="backBtn" class="secondary">Til oppsett</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d", {alpha:false});
+const fireworksCanvas = document.getElementById("fireworksLayer");
+const fctx = fireworksCanvas.getContext("2d");
+const setup = document.getElementById("setup");
+const hud = document.getElementById("hud");
+const finish = document.getElementById("finish");
+const messageLayer = document.getElementById("messageLayer");
+
+let dpr = 1, W = 1280, H = 720;
+let playerCount = 1;
+let boards = [];
+let running = false;
+let lastT = performance.now();
+let particles = [];
+let fireworks = [];
+let muted = false;
+let finishedShown = false;
+let matchEnded = false;
+let roundMode = "unlimited";
+let roundTarget = 0;
+let matchStart = 0;
+let fireworkSoundPrimed = false;
+let screenFlash = 0;
+let screenFlashColor = "#ffffff";
+
+// Samplede lyder. Kilde: rse/soundfx på GitHub (se README_Kulejungel.txt).
+const SOUND_BASE = "assets/";
+const FIREWORKS_URL = "assets/fanfare.wav";
+const soundUrls = {
+  grab: SOUND_BASE + "wood.wav",
+  bump: SOUND_BASE + "wood.wav",
+  trap: SOUND_BASE + "flute.wav",
+  success: SOUND_BASE + "success.wav",
+  fanfare: SOUND_BASE + "fanfare.wav",
+  chime: SOUND_BASE + "piano.wav",
+  // To samplede slag legges oppå hverandre for et tørrere "stein mot stein"-klakk.
+  stoneLow: SOUND_BASE + "kick.wav",
+  stoneClick: SOUND_BASE + "wood.wav",
+  splatLow: SOUND_BASE + "kick.wav",
+  splatWet: SOUND_BASE + "snare.wav"
+};
+const soundVolume = {grab:.5,bump:.5,trap:.5,success:.5,fanfare:.42,chime:.5,stoneLow:.34,stoneClick:.58,splatLow:.56,splatWet:.40};
+
+// Tre forskjellige applaus-/klappeopptak.
+// Hvert mål velger tilfeldig ett av dem og spiller bare et kort utsnitt.
+const APPLAUSE_SAMPLES = [
+  {
+    url:"assets/clap.wav",
+    start:0.00, dur:1450, vol:.48, rate:1.06
+  },
+  {
+    url:"assets/clap.wav",
+    start:0.00, dur:1280, vol:.46, rate:1.08
+  },
+  {
+    url:"assets/clap.wav",
+    start:0.00, dur:1180, vol:.42, rate:1.00
+  }
+];
+
+const APPLAUSE_PLAYERS = APPLAUSE_SAMPLES.map(s=>{
+  const a=new Audio(s.url);
+  a.preload="metadata";
+  a.volume=s.vol;
+  try{a.load();}catch(e){}
+  return a;
+});
+let applausePrimed=false;
+const FIREWORK_PLAYER = new Audio(FIREWORKS_URL);
+FIREWORK_PLAYER.preload="auto";
+FIREWORK_PLAYER.volume=.48;
+/* lastes ved behov i Chrome */
+
+function primeFireworksSound(){
+  if(fireworkSoundPrimed || muted) return;
+  fireworkSoundPrimed=true;
+  try{
+    FIREWORK_PLAYER.muted=true;
+    FIREWORK_PLAYER.currentTime=0;
+    const p=FIREWORK_PLAYER.play();
+    if(p && p.then){
+      p.then(()=>{
+        try{FIREWORK_PLAYER.pause();FIREWORK_PLAYER.currentTime=0;FIREWORK_PLAYER.muted=false;}catch(e){}
+      }).catch(()=>{
+        try{FIREWORK_PLAYER.pause();FIREWORK_PLAYER.currentTime=0;FIREWORK_PLAYER.muted=false;}catch(e){}
+      });
+    }
+  }catch(e){}
+}
+
+function primeApplause(){
+  if(applausePrimed || muted) return;
+  applausePrimed=true;
+  APPLAUSE_PLAYERS.forEach(a=>{
+    try{
+      a.muted=true;
+      a.currentTime=0;
+      const p=a.play();
+      if(p && p.then){
+        p.then(()=>{
+          try{a.pause();a.currentTime=0;a.muted=false;}catch(e){}
+        }).catch(()=>{
+          try{a.pause();a.currentTime=0;a.muted=false;}catch(e){}
+        });
+      }
+    }catch(e){}
+  });
+}
+
+
+// Ekte samplede vokallyder (CC0-kildene er dokumentert i README).
+const OUCH_SAMPLES = [
+  "assets/flute.wav",
+  "assets/flute.wav"
+];
+function playSound(name, vol=1){
+  if(muted || !soundUrls[name]) return;
+  try{
+    const a = new Audio(soundUrls[name]);
+    a.preload = "none";
+    a.volume = Math.min(1,(soundVolume[name]||.5)*vol);
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+function playStoneClack(power=1){
+  if(muted) return;
+  try{
+    const low = new Audio(soundUrls.stoneLow);
+    low.volume = Math.min(.72,.20+.34*power);
+    low.playbackRate = rnd(.92,1.08);
+    low.play().catch(()=>{});
+    setTimeout(()=>{
+      const click = new Audio(soundUrls.stoneClick);
+      click.volume = Math.min(.82,.28+.38*power);
+      click.playbackRate = rnd(.80,1.18);
+      click.play().catch(()=>{});
+    }, rnd(12,32));
+  }catch(e){}
+}
+function playFunnyOuch(){
+  if(muted) return;
+  try{
+    const url = OUCH_SAMPLES[Math.floor(Math.random()*OUCH_SAMPLES.length)];
+    const a = new Audio(url);
+    a.preload = "none";
+    a.volume = .62;
+    const rates=[.72,.84,.96,1.10,1.24,1.36];
+    a.playbackRate = rates[Math.floor(Math.random()*rates.length)];
+    if("preservesPitch" in a) a.preservesPitch=false;
+    if("webkitPreservesPitch" in a) a.webkitPreservesPitch=false;
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+function playCritterStep(type){
+  if(muted) return;
+  try{
+    const url = type==="beetle" ? soundUrls.grab : soundUrls.stoneClick;
+    const a = new Audio(url);
+    a.preload = "none";
+    a.volume = type==="beetle" ? .038 : .022;
+    a.playbackRate = type==="beetle" ? rnd(.55,.72) : rnd(1.52,1.90);
+    if("preservesPitch" in a) a.preservesPitch=false;
+    if("webkitPreservesPitch" in a) a.webkitPreservesPitch=false;
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+
+function playShortApplause(){
+  if(muted) return;
+  try{
+    const idx=Math.floor(Math.random()*APPLAUSE_SAMPLES.length);
+    const base=APPLAUSE_SAMPLES[idx];
+    const a=APPLAUSE_PLAYERS[idx];
+
+    a.muted=false;
+    try{a.pause();a.currentTime=base.start||0;}catch(e){}
+    a.volume=clamp(base.vol+rnd(-.025,.035),.34,.60);
+    a.playbackRate=clamp(base.rate+rnd(-.025,.025),.92,1.18);
+
+    const p=a.play();
+    if(p && p.catch) p.catch(()=>{});
+    setTimeout(()=>{
+      try{a.pause();a.currentTime=0;}catch(e){}
+    },base.dur+rnd(-40,55));
+  }catch(e){}
+}
+function playSplat(){
+  if(muted) return;
+  try{
+    const a=new Audio(soundUrls.splatLow);
+    a.volume=.48;a.playbackRate=rnd(.55,.69);
+    if("preservesPitch" in a) a.preservesPitch=false;
+    if("webkitPreservesPitch" in a) a.webkitPreservesPitch=false;
+    a.play().catch(()=>{});
+    setTimeout(()=>{
+      const b=new Audio(soundUrls.splatWet);
+      b.volume=.34;b.playbackRate=rnd(.58,.76);
+      if("preservesPitch" in b) b.preservesPitch=false;
+      if("webkitPreservesPitch" in b) b.webkitPreservesPitch=false;
+      b.play().catch(()=>{});
+    },22);
+  }catch(e){}
+}
+
+const COLORS = [
+  {name:"rød", hex:"#ef3e45"},
+  {name:"oransje", hex:"#ff8f27"},
+  {name:"gul", hex:"#ffd83b"},
+  {name:"grønn", hex:"#43c768"},
+  {name:"blå", hex:"#2e88ef"},
+  {name:"indigo", hex:"#5557d9"},
+  {name:"fiolett", hex:"#9252cc"}
+];
+
+const DIFF = {
+  // v10.3: raskere rulledynamikk og tydeligere pinball-følelse.
+  veryeasy:{label:"Veldig lett", drag:24.0, maxSpeed:1150, launch:1.90, slope:82,  friction:.9940, bounce:.84, trapScale:.64, magnet:145, magnetForce:10.5, obstacleScale:.68, fallGrace:.82},
+  easy:    {label:"Lett",        drag:22.0, maxSpeed:1300, launch:2.08, slope:112, friction:.9950, bounce:.88, trapScale:.78, magnet:98,  magnetForce:6.8,  obstacleScale:.78, fallGrace:.70},
+  normal:  {label:"Middels",     drag:20.0, maxSpeed:1450, launch:2.28, slope:145, friction:.9960, bounce:.92, trapScale:.96, magnet:52,  magnetForce:3.2,  obstacleScale:.90, fallGrace:.58},
+  hard:    {label:"Utfordrende", drag:18.0, maxSpeed:1600, launch:2.48, slope:178, friction:.9965, bounce:.95, trapScale:1.08,magnet:0,   magnetForce:0,    obstacleScale:1.0,  fallGrace:.50}
+};
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function lerp(a,b,t){return a+(b-a)*t}
+function dist2(x1,y1,x2,y2){const dx=x1-x2,dy=y1-y2;return dx*dx+dy*dy}
+function rnd(a,b){return a+Math.random()*(b-a)}
+function fract(v){return v-Math.floor(v)}
+function prand(seed){
+  return fract(Math.sin(seed*12.9898+78.233)*43758.5453123);
+}
+function hash2(ix,iy,seed){
+  return prand(ix*127.1 + iy*311.7 + seed*73.91);
+}
+function valueNoise(x,y,seed){
+  const ix=Math.floor(x), iy=Math.floor(y);
+  const fx=x-ix, fy=y-iy;
+  const sx=fx*fx*(3-2*fx), sy=fy*fy*(3-2*fy);
+  const a=hash2(ix,iy,seed), b=hash2(ix+1,iy,seed);
+  const c=hash2(ix,iy+1,seed), d=hash2(ix+1,iy+1,seed);
+  return lerp(lerp(a,b,sx),lerp(c,d,sx),sy);
+}
+function soilNoise(x,y,seed){
+  let total=0, amp=.56, freq=1, norm=0;
+  for(let o=0;o<4;o++){
+    total += valueNoise(x*freq,y*freq,seed+o*17.3)*amp;
+    norm += amp;
+    amp *= .52; freq *= 2.03;
+  }
+  return total/norm;
+}
+function createBallWear(id,boardIndex){
+  const dirt=[], scratches=[];
+  const base=1000+id*113+boardIndex*991;
+  for(let i=0;i<13;i++){
+    const a=prand(base+i*7.1)*Math.PI*2;
+    const rr=Math.sqrt(prand(base+i*13.7))*0.72;
+    dirt.push({
+      x:Math.cos(a)*rr, y:Math.sin(a)*rr,
+      rx:.045+prand(base+i*19.3)*.12,
+      ry:.025+prand(base+i*23.9)*.08,
+      rot:prand(base+i*29.1)*Math.PI,
+      alpha:.06+prand(base+i*31.7)*.16
+    });
+  }
+  for(let i=0;i<9;i++){
+    const a=prand(base+300+i*17.3)*Math.PI*2;
+    const rr=Math.sqrt(prand(base+500+i*9.7))*0.62;
+    scratches.push({
+      x:Math.cos(a)*rr, y:Math.sin(a)*rr,
+      ang:prand(base+700+i*5.3)*Math.PI*2,
+      len:.12+prand(base+900+i*11.9)*.28,
+      width:.012+prand(base+1100+i*3.1)*.018,
+      alpha:.10+prand(base+1300+i*2.7)*.22
+    });
+  }
+  return {dirt,scratches};
+}
+
+function resize(){
+  dpr = Math.min(window.devicePixelRatio||1,2);
+  W = innerWidth; H = innerHeight;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  canvas.style.width = W+"px"; canvas.style.height = H+"px";
+  fireworksCanvas.width = Math.round(W*dpr); fireworksCanvas.height = Math.round(H*dpr);
+  fireworksCanvas.style.width = W+"px"; fireworksCanvas.style.height = H+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  fctx.setTransform(dpr,0,0,dpr,0,0);
+  if(running) layoutBoards();
+}
+window.addEventListener("resize", resize);
+resize();
+
+
+const roundModeSelect=document.getElementById("roundMode");
+const scoreTargetWrap=document.getElementById("scoreTargetWrap");
+const timeTargetWrap=document.getElementById("timeTargetWrap");
+const roundHint=document.getElementById("roundHint");
+
+function updateRoundControls(){
+  const mode=roundModeSelect.value;
+  scoreTargetWrap.style.display=mode==="score"?"block":"none";
+  timeTargetWrap.style.display=mode==="time"?"block":"none";
+  if(mode==="unlimited"){
+    roundHint.textContent="Ubegrenset er standard: når alle sju kulene er i mål kommer fyrverkeri, kulene settes opp igjen og spillet fortsetter med samme poengsum.";
+  }else if(mode==="score"){
+    roundHint.textContent="Første spiller som når poenggrensen vinner. Alle sju kulene kan brukes flere ganger hvis det trengs.";
+  }else{
+    roundHint.textContent="Når tiden er ute stopper spillet. Spilleren med høyest poengsum vinner.";
+  }
+}
+roundModeSelect.addEventListener("change",updateRoundControls);
+updateRoundControls();
+
+document.querySelectorAll(".modeBtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    playerCount = +btn.dataset.players;
+    document.querySelectorAll(".modeBtn").forEach(b=>b.classList.toggle("active",b===btn));
+    const p2 = document.getElementById("p2Card");
+    p2.style.opacity = playerCount===2 ? "1" : ".38";
+    p2.style.pointerEvents = playerCount===2 ? "auto" : "none";
+  });
+});
+
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  const loading=document.getElementById("loadingGame");
+  loading.style.display="flex";
+  // La Chrome tegne lastebildet før terrenget bygges.
+  requestAnimationFrame(()=>setTimeout(()=>{
+    try{
+      startGame();
+    }finally{
+      loading.style.display="none";
+    }
+  },20));
+});
+document.getElementById("againBtn").addEventListener("click", ()=>{
+  finish.style.display="none";
+  const loading=document.getElementById("loadingGame");
+  loading.style.display="flex";
+  requestAnimationFrame(()=>setTimeout(()=>{
+    try{ startGame(); } finally { loading.style.display="none"; }
+  },20));
+});
+document.getElementById("backBtn").addEventListener("click", showSetup);
+document.getElementById("setupBtn").addEventListener("click", showSetup);
+document.getElementById("stopBtn").addEventListener("click",()=>{
+  if(running) endMatch("stopped");
+});
+document.getElementById("soundBtn").addEventListener("click",()=>{
+  muted=!muted;
+  document.getElementById("soundBtn").textContent = muted ? "🔇 Lyd av" : "🔊 Lyd";
+});
+document.getElementById("fullBtn").addEventListener("click", async()=>{
+  try{
+    if(!document.fullscreenElement) await document.documentElement.requestFullscreen();
+    else await document.exitFullscreen();
+  }catch(e){}
+});
+
+function showSetup(){
+  running=false;
+  matchEnded=true;
+  fireworks.length=0;
+  fctx.clearRect(0,0,W,H);
+  setup.style.display="flex";
+  hud.style.display="none";
+  finish.style.display="none";
+  const title=document.querySelector(".centerTitle");
+  if(title) title.textContent="🌿 KULEJUNGEL 🌿";
+}
+
+function startGame(){
+  document.body.classList.toggle("two-players",playerCount===2);
+  ensureForestAudio();
+  finishedShown=false;
+  matchEnded=false;
+  particles.length=0;
+  fireworks.length=0;
+  fctx.clearRect(0,0,W,H);
+  boards = [];
+
+  roundMode=document.getElementById("roundMode").value;
+  if(roundMode==="score"){
+    roundTarget=Math.max(1000,Number(document.getElementById("scoreTarget").value)||10000);
+  }else if(roundMode==="time"){
+    roundTarget=Math.max(1,Number(document.getElementById("timeTarget").value)||5)*60;
+  }else{
+    roundTarget=0;
+  }
+
+  const names=[document.getElementById("name1").value.trim()||"Spiller 1", document.getElementById("name2").value.trim()||"Spiller 2"];
+  const diffs=[document.getElementById("diff1").value, document.getElementById("diff2").value];
+
+  for(let i=0;i<playerCount;i++){
+    boards.push(makeBoard(i,names[i],diffs[i]));
+  }
+  layoutBoards();
+  setup.style.display="none";
+  finish.style.display="none";
+  hud.style.display="block";
+  document.getElementById("hudP2").style.display=playerCount===2?"block":"none";
+  updateHUD();
+  try{localStorage.setItem('kulejungelNatur',JSON.stringify({names,diffs,playerCount,roundMode,score:document.getElementById('scoreTarget').value,time:document.getElementById('timeTarget').value}))}catch{}
+  running=true;
+  matchStart=performance.now();
+  lastT=performance.now();
+  playSound("chime",.8);
+}
+
+function makeBoard(index,name,diffKey){
+  const seed = index===0 ? 1.17 : 2.93;
+  return {
+    index,name,diffKey,diff:DIFF[diffKey],seed,
+    x:0,y:0,w:W,h:H,
+    balls:[],holes:[],traps:[],rocks:[],mud:[],critters:[],scorpions:[],animals:[],
+    critterTimer:rnd(5.5,11.5),
+    scorpionTimer:rnd(13,24),
+    animalTimer:rnd(9,18),
+    score:0,
+    cycles:0,
+    resetPending:false,
+    terrainCanvas:null,
+    complete:false, finishTime:null, shake:0
+  };
+}
+
+function layoutBoards(){
+  const top = 68;
+  const gap = playerCount===2 ? 6 : 0;
+  if(playerCount===1){
+    Object.assign(boards[0],{x:0,y:top,w:W,h:H-top});
+    populateBoard(boards[0]);
+  }else{
+    const half=(W-gap)/2;
+    Object.assign(boards[0],{x:0,y:top,w:half,h:H-top});
+    Object.assign(boards[1],{x:half+gap,y:top,w:half,h:H-top});
+    populateBoard(boards[0]);
+    populateBoard(boards[1]);
+  }
+}
+
+// Terrengfunksjon. Positiv verdi = høyde, negativ = fordypning.
+function terrainH(b,x,y){
+  const u=(x-b.x)/b.w, v=(y-b.y)/b.h;
+  const s=b.seed;
+  const gauss=(cx,cy,sx,sy,a)=>a*Math.exp(-(((u-cx)*(u-cx))/(sx*sx)+((v-cy)*(v-cy))/(sy*sy)));
+  let h=0;
+
+  // Tydeligere fjellrygger / hauger.
+  h += gauss(.28,.25,.18,.15, 1.34);
+  h += gauss(.70,.48,.16,.19, 1.14);
+  h += gauss(.45,.79,.20,.12, .96);
+  h += gauss(.88,.67,.10,.13, .62);
+
+  // Dypere daler og groper.
+  h -= gauss(.18,.66,.17,.18, 1.18);
+  h -= gauss(.82,.22,.13,.17, 1.02);
+  h -= gauss(.55,.39,.10,.10, .72);
+  h -= gauss(.37,.55,.09,.13, .55);
+
+  // En svak, uregelmessig ryggstruktur mellom hovedformene.
+  h += .22*Math.sin((u*3.05+s)*Math.PI*2)*Math.cos((v*2.20+s*.41)*Math.PI*2);
+  h += .10*Math.sin((u*5.2-v*2.7+s*.7)*Math.PI*2);
+
+  return h;
+}
+function terrainGrad(b,x,y){
+  const e=2.2;
+  return {
+    x:(terrainH(b,x+e,y)-terrainH(b,x-e,y))/(2*e),
+    y:(terrainH(b,x,y+e)-terrainH(b,x,y-e))/(2*e)
+  };
+}
+
+function populateBoard(b){
+  // Bevar relativ fremdrift ved resize hvis banen allerede finnes.
+  if(b.balls.length){
+    const old={x:b._oldX??b.x,y:b._oldY??b.y,w:b._oldW??b.w,h:b._oldH??b.h};
+    const rescale=(o)=>{
+      const u=(o.x-old.x)/Math.max(1,old.w), v=(o.y-old.y)/Math.max(1,old.h);
+      o.x=b.x+u*b.w; o.y=b.y+v*b.h;
+      if(o.startX!==undefined){
+        const su=(o.startX-old.x)/Math.max(1,old.w), sv=(o.startY-old.y)/Math.max(1,old.h);
+        o.startX=b.x+su*b.w; o.startY=b.y+sv*b.h;
+      }
+    };
+    [...b.balls,...b.holes,...b.traps,...b.rocks,...b.mud,...b.critters,...b.scorpions,...b.animals].forEach(rescale);
+    b._oldX=b.x;b._oldY=b.y;b._oldW=b.w;b._oldH=b.h;
+    renderTerrain(b);
+    return;
+  }
+
+  const minDim=Math.min(b.w,b.h);
+  const baseR=clamp(minDim*.047,24,46);
+  const rads=COLORS.map((_,i)=>baseR*(1-i*.068));
+
+  // Startposisjoner: langs nederste kant, med god avstand.
+  COLORS.forEach((c,i)=>{
+    const u=.13 + i*(.74/6);
+    const x=b.x+u*b.w;
+    const y=b.y+b.h*.88 + Math.sin(i*1.7)*b.h*.015;
+    b.balls.push({
+      id:i,color:c.hex,name:c.name,r:rads[i],x,y,vx:0,vy:0,
+      startX:x,startY:y,done:false,active:i===0,hasStarted:false,dragId:null,targetX:x,targetY:y,
+      lastPointerX:x,lastPointerY:y,lastPointerT:0,flickVX:0,flickVY:0,runStart:null,
+      stuck:null,fall:0,glow:i===0?1:0,spin:rnd(0,Math.PI*2),wear:createBallWear(i,b.index),dustT:0
+    });
+  });
+
+  // Mål-hull – størrelsen følger ballen, plassert som en slalåm gjennom jungelen.
+  const goalUV = [
+    [.16,.19],[.40,.30],[.76,.18],[.68,.47],[.28,.48],[.18,.72],[.72,.73]
+  ];
+  COLORS.forEach((c,i)=>{
+    const [u,v]=goalUV[i];
+    b.holes.push({
+      id:i,color:c.hex,name:c.name,r:rads[i]*1.10,
+      x:b.x+u*b.w,y:b.y+v*b.h,pulse:rnd(0,6.28),filled:false
+    });
+  });
+
+  // Ekstra feller. Skaleres etter vanskelighetsgrad.
+  const trapUV=[[.52,.18],[.87,.40],[.48,.58],[.38,.72],[.83,.68],[.10,.42],[.62,.76],[.25,.22],[.91,.77]];
+  const trapCount=b.diffKey==="veryeasy"?4:b.diffKey==="easy"?5:b.diffKey==="normal"?7:8;
+  for(let i=0;i<trapCount;i++){
+    const [u,v]=trapUV[i];
+    const rr=baseR*rnd(.62,.86)*b.diff.trapScale;
+    b.traps.push({x:b.x+u*b.w,y:b.y+v*b.h,r:rr,pulse:rnd(0,6.28)});
+  }
+
+  // Færre, men tydeligere natursteiner. De får hver sin form, farge, slitasje og sprekker.
+  const rockUV=[
+    [.33,.18],[.57,.33],[.86,.57],[.52,.77],[.12,.59],[.66,.65],[.30,.62],
+    [.44,.41],[.74,.34],[.20,.52]
+  ];
+  const rockCount=b.diffKey==="veryeasy"?3:b.diffKey==="easy"?4:b.diffKey==="normal"?5:6;
+  for(let i=0;i<rockCount;i++){
+    const [u,v]=rockUV[i];
+    const seed=700+b.index*101+i*37;
+    b.rocks.push({
+      x:b.x+u*b.w,y:b.y+v*b.h,
+      r:baseR*rnd(.68,1.03)*b.diff.obstacleScale,
+      rot:rnd(0,6.28),
+      squash:.72+prand(seed+1)*.24,
+      warm:prand(seed+2),
+      chips:Array.from({length:7},(_,k)=>.84+prand(seed+10+k)*.20),
+      crackSeed:seed+40
+    });
+  }
+
+  // Myr/mudder = tregere område
+  const mudUV=[[.55,.46,.13,.08],[.22,.33,.10,.065],[.78,.82,.10,.055]];
+  mudUV.forEach(([u,v,rx,ry],i)=>{
+    if(i===2 && (b.diffKey==="veryeasy"||b.diffKey==="easy")) return;
+    b.mud.push({x:b.x+u*b.w,y:b.y+v*b.h,rx:b.w*rx,ry:b.h*ry,seed:9100+b.index*313+i*71});
+  });
+
+  randomizeGoalHoles(b,true);
+  b._oldX=b.x;b._oldY=b.y;b._oldW=b.w;b._oldH=b.h;
+  renderTerrain(b);
+}
+
+function renderTerrainFallback(b){
+  // Chrome-optimert versjon: samme jord/grus-følelse, men langt færre tunge
+  // per-piksel-beregninger. Terrenget rendres på lavere intern oppløsning
+  // og skaleres mykt opp av canvas.
+  const scale=.34;
+  const tw=Math.max(150,Math.round(b.w*scale));
+  const th=Math.max(110,Math.round(b.h*scale));
+  const c=document.createElement("canvas");
+  c.width=tw;c.height=th;
+  const g=c.getContext("2d");
+  const img=g.createImageData(tw,th);
+
+  for(let py=0;py<th;py++){
+    for(let px=0;px<tw;px++){
+      const x=b.x+(px/(tw-1))*b.w;
+      const y=b.y+(py/(th-1))*b.h;
+      const h=terrainH(b,x,y);
+
+      // Bare én billig støyverdi per pixel.
+      const n=soilNoise(px*.075,py*.075,b.seed*31.7);
+      const fine=prand(px*17.13+py*43.71+b.seed*101.9);
+      const ht=clamp((h+1.62)/3.35,0,1);
+
+      let r=lerp(70,166,ht);
+      let gg=lerp(48,122,ht);
+      let bl=lerp(29,72,ht);
+
+      const mottled=(n-.5)*28+(fine-.5)*7;
+      r+=mottled;gg+=mottled*.72;bl+=mottled*.42;
+
+      // Approximer lys fra terrenggradient med to ekstra samples i stedet for full grad-funksjon.
+      const e=4.5;
+      const gx=(terrainH(b,x+e,y)-terrainH(b,x-e,y))/(2*e);
+      const gy=(terrainH(b,x,y+e)-terrainH(b,x,y-e))/(2*e);
+      const light=clamp(.83+(-gx*.94-gy*.72)*5.2,.56,1.17);
+
+      const k=(py*tw+px)*4;
+      img.data[k]=clamp(r*light,0,255);
+      img.data[k+1]=clamp(gg*light,0,255);
+      img.data[k+2]=clamp(bl*light,0,255);
+      img.data[k+3]=255;
+    }
+  }
+  g.putImageData(img,0,0);
+
+  // Jordflekker
+  for(let i=0;i<36;i++){
+    const s=b.seed*1700+i*43.1;
+    const x=prand(s+1)*tw,y=prand(s+2)*th;
+    const rx=6+prand(s+3)*28,ry=4+prand(s+4)*17;
+    g.save();g.translate(x,y);g.rotate(prand(s+5)*Math.PI);
+    g.fillStyle=prand(s+6)>.5
+      ? `rgba(49,31,18,${.035+prand(s+7)*.08})`
+      : `rgba(208,161,94,${.028+prand(s+7)*.065})`;
+    g.beginPath();g.ellipse(0,0,rx,ry,0,0,Math.PI*2);g.fill();
+    g.restore();
+  }
+
+  // Mange synlige korn, men betydelig færre enn v10.
+  const gritCount=Math.max(900,Math.round(tw*th/42));
+  const gritColors=[
+    [45,31,20],[67,46,29],[93,64,39],[121,86,52],
+    [153,113,71],[188,148,96],[110,103,88],[145,137,116]
+  ];
+  for(let i=0;i<gritCount;i++){
+    const s=b.seed*3100+i*11.73;
+    const x=prand(s+1)*tw,y=prand(s+2)*th;
+    const rr=.32+Math.pow(prand(s+3),1.5)*1.25;
+    const p=gritColors[Math.floor(prand(s+4)*gritColors.length)];
+    const a=.18+prand(s+5)*.38;
+    g.fillStyle=`rgba(${p[0]},${p[1]},${p[2]},${a})`;
+    g.beginPath();g.ellipse(x,y,rr,rr*(.42+prand(s+6)*.48),prand(s+7)*Math.PI,0,Math.PI*2);g.fill();
+  }
+
+  // Små grussteiner.
+  const stoneCount=Math.max(230,Math.round(tw*th/160));
+  const palettes=[
+    ["#766958","#b7a98f","#443a30"],
+    ["#6a6259","#aaa399","#3d3934"],
+    ["#84694d","#c4a274","#493829"],
+    ["#706b61","#b9b1a1","#3f3b36"]
+  ];
+  for(let i=0;i<stoneCount;i++){
+    const s=b.seed*5100+i*59.37;
+    const x=prand(s+1)*tw,y=prand(s+2)*th;
+    const rr=.8+Math.pow(prand(s+3),1.5)*2.7;
+    const sy=.44+prand(s+4)*.34;
+    const rot=prand(s+5)*Math.PI;
+    const pal=palettes[Math.floor(prand(s+6)*palettes.length)];
+
+    g.save();g.translate(x,y);g.rotate(rot);
+    g.fillStyle="rgba(27,19,13,.26)";
+    g.beginPath();g.ellipse(rr*.30,rr*.38,rr*1.10,rr*sy*.72,0,0,Math.PI*2);g.fill();
+
+    const pg=g.createRadialGradient(-rr*.30,-rr*.27,rr*.04,0,0,rr);
+    pg.addColorStop(0,pal[1]);pg.addColorStop(.56,pal[0]);pg.addColorStop(1,pal[2]);
+    g.fillStyle=pg;
+    g.beginPath();g.ellipse(0,0,rr,rr*sy,0,0,Math.PI*2);g.fill();
+    g.restore();
+  }
+
+  // Jordklumper og små groper.
+  const clods=Math.max(42,Math.round(tw*th/650));
+  for(let i=0;i<clods;i++){
+    const s=b.seed*6900+i*31.5;
+    const x=prand(s+1)*tw,y=prand(s+2)*th;
+    const rr=1.5+prand(s+3)*3.8;
+    g.fillStyle="rgba(31,20,13,.25)";
+    g.beginPath();g.ellipse(x+rr*.30,y+rr*.33,rr,rr*.48,0,0,Math.PI*2);g.fill();
+    g.fillStyle=prand(s+5)>.5?"rgba(118,80,52,.66)":"rgba(95,64,43,.66)";
+    g.beginPath();g.ellipse(x,y,rr*.9,rr*.43,prand(s+4)*Math.PI,0,Math.PI*2);g.fill();
+  }
+
+  // Lett kantmørkning.
+  const vg=g.createRadialGradient(tw*.48,th*.44,Math.min(tw,th)*.22,tw*.5,th*.5,Math.max(tw,th)*.78);
+  vg.addColorStop(0,"rgba(255,234,188,0)");
+  vg.addColorStop(1,"rgba(39,24,12,.14)");
+  g.fillStyle=vg;g.fillRect(0,0,tw,th);
+
+  b.terrainCanvas=c;
+}
+
+function boardAt(x,y){
+  return boards.find(b=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h);
+}
+
+canvas.addEventListener("pointerdown", e=>{
+  if(!running)return;
+  ensureForestAudio();
+  primeApplause();
+  primeFireworksSound();
+  canvas.setPointerCapture?.(e.pointerId);
+  const p=getPos(e);
+  const b=boardAt(p.x,p.y); if(!b)return;
+  let best=null,bestD=Infinity;
+  for(const ball of b.balls){
+    if(ball.done||!ball.active||ball.dragId!==null) continue;
+    const d=dist2(p.x,p.y,ball.x,ball.y);
+    const pickR=ball.stuck ? ball.r*2.25+30 : ball.r*1.6+18;
+    if(d<pickR*pickR && d<bestD){best=ball;bestD=d;}
+  }
+  if(best){
+    best.dragId=e.pointerId;
+    best.targetX=p.x;best.targetY=p.y;
+    best.lastPointerX=p.x;best.lastPointerY=p.y;best.lastPointerT=performance.now();
+    best.flickVX=0;best.flickVY=0;best.hasStarted=true;
+    if(best.runStart===null) best.runStart=performance.now();
+    // Hvis kula satt fast i et for lite/feil hull, frigjøres den umiddelbart ved berøring.
+    if(best.stuck){
+      const hx=best.stuck.hole?.x ?? best.x;
+      const hy=best.stuck.hole?.y ?? best.y;
+      let ex=best.x-hx, ey=best.y-hy, el=Math.hypot(ex,ey);
+      if(el<1){ ex=0; ey=-1; el=1; }
+      best.x += (ex/el)*Math.max(8,best.r*.32);
+      best.y += (ey/el)*Math.max(8,best.r*.32);
+      best.vx=(ex/el)*70; best.vy=(ey/el)*70;
+      best.stuck=null;
+      burst(best.x,best.y,10,"dust","#c9a66b");
+    }
+    best.fall=0;
+    best.glow=1;
+    playSound("grab",.5);
+  }
+});
+canvas.addEventListener("pointermove", e=>{
+  if(!running)return;
+  const p=getPos(e);
+  for(const b of boards){
+    for(const ball of b.balls){
+      if(ball.dragId===e.pointerId){
+        const now=performance.now();
+        const mx=clamp(p.x,b.x+ball.r,b.x+b.w-ball.r);
+        const my=clamp(p.y,b.y+ball.r,b.y+b.h-ball.r);
+        const dts=Math.max(.008,(now-ball.lastPointerT)/1000);
+        const pvx=(mx-ball.lastPointerX)/dts;
+        const pvy=(my-ball.lastPointerY)/dts;
+        // Glatt ut håndbevegelsen slik at slippet kjennes som en ekte klinkekule.
+        ball.flickVX=ball.flickVX*.38+pvx*.62;
+        ball.flickVY=ball.flickVY*.38+pvy*.62;
+        ball.lastPointerX=mx;ball.lastPointerY=my;ball.lastPointerT=now;
+        ball.targetX=mx;ball.targetY=my;
+      }
+    }
+  }
+});
+function releasePointer(id){
+  for(const b of boards){
+    for(const ball of b.balls){
+      if(ball.dragId!==id) continue;
+      ball.dragId=null;
+      if(ball.done||ball.fall>0) continue;
+      const d=b.diff;
+      // Pinball/klinkekule-effekt: fingerfarten ved slipp blir direkte til kulefart.
+      const speed=Math.hypot(ball.flickVX,ball.flickVY);
+      if(speed>35){
+        ball.vx=ball.flickVX*d.launch + ball.vx*.18;
+        ball.vy=ball.flickVY*d.launch + ball.vy*.18;
+        const s=Math.hypot(ball.vx,ball.vy);
+        if(s>d.maxSpeed){const k=d.maxSpeed/s;ball.vx*=k;ball.vy*=k;}
+        ball.glow=1;
+      }
+      ball.flickVX=ball.flickVY=0;
+    }
+  }
+}
+canvas.addEventListener("pointerup",e=>releasePointer(e.pointerId));
+canvas.addEventListener("pointercancel",e=>releasePointer(e.pointerId));
+function getPos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+
+function pointInEllipse(px,py,m){
+  const dx=(px-m.x)/m.rx,dy=(py-m.y)/m.ry;return dx*dx+dy*dy<=1;
+}
+
+function playFireworksSound(){
+  if(muted) return;
+  try{
+    FIREWORK_PLAYER.muted=false;
+    FIREWORK_PLAYER.volume=.50;
+    FIREWORK_PLAYER.playbackRate=rnd(.94,1.06);
+    FIREWORK_PLAYER.currentTime=0;
+    const p=FIREWORK_PLAYER.play();
+    if(p && p.catch) p.catch(()=>{});
+  }catch(e){}
+}
+
+function fireworkExplosion(x,y,color){
+  const count=54+Math.floor(Math.random()*28);
+  for(let i=0;i<count;i++){
+    const a=(i/count)*Math.PI*2+rnd(-.035,.035);
+    const speed=rnd(85,285);
+    fireworks.push({
+      type:"spark",
+      x,y,
+      vx:Math.cos(a)*speed,
+      vy:Math.sin(a)*speed,
+      life:rnd(.85,1.55),
+      age:0,
+      size:rnd(1.7,4.0),
+      color:color||COLORS[Math.floor(Math.random()*COLORS.length)].hex,
+      trail:rnd(.4,.9)
+    });
+  }
+  for(let i=0;i<14;i++){
+    const a=rnd(0,Math.PI*2),speed=rnd(30,110);
+    fireworks.push({
+      type:"glitter",x,y,
+      vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,
+      life:rnd(.55,1.05),age:0,size:rnd(1.4,3.0),
+      color:"#fff6c6",trail:.2
+    });
+  }
+}
+
+function celebrateFullScreen(){
+  playFireworksSound();
+  const bursts=12;
+  for(let i=0;i<bursts;i++){
+    setTimeout(()=>{
+      if(matchEnded) return;
+      const x=rnd(W*.08,W*.92);
+      const y=rnd(H*.12,H*.68);
+      fireworkExplosion(x,y,COLORS[i%COLORS.length].hex);
+      if(i===4 || i===8){
+        try{
+          const a=new Audio(FIREWORKS_URL);
+          a.volume=.28;
+          a.playbackRate=rnd(.86,1.12);
+          a.currentTime=0;
+          a.play().catch(()=>{});
+        }catch(e){}
+      }
+    },i*105);
+  }
+}
+
+function updateFireworks(dt){
+  fireworks=fireworks.filter(p=>{
+    p.age+=dt;
+    if(p.age>=p.life) return false;
+    p.vy+=72*dt;
+    p.vx*=Math.pow(.992,dt*60);
+    p.vy*=Math.pow(.992,dt*60);
+    p.x+=p.vx*dt;
+    p.y+=p.vy*dt;
+    return true;
+  });
+}
+
+function drawFireworks(){
+  fctx.setTransform(dpr,0,0,dpr,0,0);
+  fctx.clearRect(0,0,W,H);
+  if(!fireworks.length) return;
+
+  fctx.save();
+  fctx.globalCompositeOperation="lighter";
+  for(const p of fireworks){
+    const t=1-p.age/p.life;
+    const alpha=clamp(t,0,1);
+    const len=Math.max(2,Math.hypot(p.vx,p.vy)*.018*p.trail);
+    const sp=Math.hypot(p.vx,p.vy)||1;
+    const nx=p.vx/sp,ny=p.vy/sp;
+
+    fctx.strokeStyle=hexAlpha(p.color,alpha*.70);
+    fctx.lineWidth=Math.max(.7,p.size*.58);
+    fctx.beginPath();
+    fctx.moveTo(p.x-nx*len,p.y-ny*len);
+    fctx.lineTo(p.x,p.y);
+    fctx.stroke();
+
+    fctx.fillStyle=hexAlpha(p.color,alpha);
+    fctx.beginPath();
+    fctx.arc(p.x,p.y,p.size*alpha*.82,0,Math.PI*2);
+    fctx.fill();
+  }
+  fctx.restore();
+}
+
+function randomizeGoalHoles(b,initial=false){
+  const placed=[];
+  const minDim=Math.min(b.w,b.h);
+
+  // Synlig stripe med jord mellom hullene – ikke bare null overlapp.
+  const preferredGap=clamp(minDim*.075,38,72);
+  const minimumGap=clamp(minDim*.045,24,44);
+
+  function edgeOK(x,y,h){
+    const edge=Math.max(h.r*1.70,minDim*.040);
+    if(x<b.x+edge || x>b.x+b.w-edge) return false;
+    if(y<b.y+Math.max(78,edge) || y>b.y+b.h*.76) return false;
+    return true;
+  }
+
+  function holeGapOK(x,y,h,gap){
+    for(const other of placed){
+      const d=Math.hypot(x-other.x,y-other.y);
+      if(d < h.r+other.r+gap) return false;
+    }
+    return true;
+  }
+
+  function obstacleOK(x,y,h,allowMud=false){
+    for(const ball of b.balls){
+      if(Math.hypot(x-ball.startX,y-ball.startY) < h.r+ball.r+36) return false;
+    }
+    for(const t of b.traps){
+      if(Math.hypot(x-t.x,y-t.y) < h.r+t.r+24) return false;
+    }
+    for(const r of b.rocks){
+      if(Math.hypot(x-r.x,y-r.y) < h.r+r.r+24) return false;
+    }
+    if(!allowMud){
+      for(const mud of b.mud){
+        const dx=(x-mud.x)/(mud.rx+h.r*.80);
+        const dy=(y-mud.y)/(mud.ry+h.r*.80);
+        if(dx*dx+dy*dy < 1) return false;
+      }
+    }
+    return true;
+  }
+
+  function validAt(x,y,h,gap,allowMud=false){
+    return edgeOK(x,y,h) &&
+           holeGapOK(x,y,h,gap) &&
+           obstacleOK(x,y,h,allowMud);
+  }
+
+  function bestGridPosition(h,gap,allowMud=false){
+    let best=null;
+    const cols=14,rows=10;
+
+    for(let gy=0;gy<rows;gy++){
+      for(let gx=0;gx<cols;gx++){
+        const u=.082+(gx/(cols-1))*.836;
+        const v=.12+(gy/(rows-1))*.605;
+        const jitterX=Math.sin((gx+1)*7.13+(gy+1)*2.7+h.id*4.9+b.cycles)*b.w*.0045;
+        const jitterY=Math.cos((gx+1)*3.8+(gy+1)*5.2+h.id*3.1+b.cycles)*b.h*.0045;
+        const x=b.x+b.w*u+jitterX;
+        const y=b.y+b.h*v+jitterY;
+
+        if(!validAt(x,y,h,gap,allowMud)) continue;
+
+        let nearest=999999;
+        for(const other of placed){
+          nearest=Math.min(nearest,Math.hypot(x-other.x,y-other.y)-h.r-other.r);
+        }
+        if(!placed.length) nearest=999999;
+
+        const centerDist=Math.hypot(
+          (x-(b.x+b.w*.5))/Math.max(1,b.w),
+          (y-(b.y+b.h*.43))/Math.max(1,b.h)
+        );
+        const score=nearest+centerDist*16;
+        if(!best || score>best.score) best={x,y,score};
+      }
+    }
+    return best;
+  }
+
+  for(let i=0;i<b.holes.length;i++){
+    const h=b.holes[i];
+    let found=false;
+
+    // Først: stor og komfortabel avstand.
+    for(let attempt=0;attempt<300;attempt++){
+      const x=b.x+b.w*rnd(.085,.915);
+      const y=b.y+b.h*rnd(.12,.735);
+      if(validAt(x,y,h,preferredGap,false)){
+        h.x=x;h.y=y;found=true;break;
+      }
+    }
+
+    if(!found){
+      const pos=bestGridPosition(h,preferredGap,false);
+      if(pos){h.x=pos.x;h.y=pos.y;found=true;}
+    }
+
+    // Smale brett kan bruke litt mindre luft, men aldri kant-i-kant.
+    if(!found){
+      const pos=bestGridPosition(h,minimumGap,false);
+      if(pos){h.x=pos.x;h.y=pos.y;found=true;}
+    }
+
+    // Grusfelt kan brukes som siste reserve, men hullavstand beholdes.
+    if(!found){
+      const pos=bestGridPosition(h,minimumGap,true);
+      if(pos){h.x=pos.x;h.y=pos.y;found=true;}
+    }
+
+    // Ekstra sikkerhetsrunde: finn den åpne plasseringen med størst kantavstand.
+    if(!found || !holeGapOK(h.x,h.y,h,minimumGap)){
+      let best=null;
+      for(let attempt=0;attempt<600;attempt++){
+        const x=b.x+b.w*rnd(.08,.92);
+        const y=b.y+b.h*rnd(.12,.735);
+        if(!edgeOK(x,y,h) || !holeGapOK(x,y,h,minimumGap)) continue;
+        if(!obstacleOK(x,y,h,true)) continue;
+
+        let nearest=999999;
+        for(const other of placed){
+          nearest=Math.min(nearest,Math.hypot(x-other.x,y-other.y)-h.r-other.r);
+        }
+        if(!best || nearest>best.nearest) best={x,y,nearest};
+      }
+      if(best){h.x=best.x;h.y=best.y;found=true;}
+    }
+
+    placed.push(h);
+    h.filled=false;
+    h.pulse=rnd(0,Math.PI*2);
+  }
+
+  if(!initial){
+    for(const h of b.holes){
+      lightPulse(h.x,h.y,h.color,.78);
+      burst(h.x,h.y,9,"spark",h.color);
+    }
+  }
+}
+
+function resetBoardCycle(b){
+  if(matchEnded || !running) return;
+  b.complete=false;
+  b.resetPending=false;
+  b.cycles++;
+  randomizeGoalHoles(b,false);
+  for(let i=0;i<b.balls.length;i++){
+    const ball=b.balls[i];
+    ball.done=false;
+    ball.active=i===0;
+    ball.hasStarted=false;
+    ball.dragId=null;
+    ball.runStart=null;
+    ball.fall=0;
+    ball.stuck=null;
+    ball.vx=ball.vy=0;
+    ball.x=ball.startX;
+    ball.y=ball.startY;
+    ball.targetX=ball.x;
+    ball.targetY=ball.y;
+    ball.glow=i===0?1:.15;
+  }
+  popText(b.x+b.w*.5,b.y+b.h*.18,"NY RUNDE – NYE HULL! 🌈","#fff4b0");
+  updateHUD();
+}
+
+function matchStatusText(){
+  if(roundMode==="score"){
+    return "Mål: "+Math.round(roundTarget)+" poeng";
+  }
+  if(roundMode==="time"){
+    const elapsed=(performance.now()-matchStart)/1000;
+    const left=Math.max(0,roundTarget-elapsed);
+    const mm=Math.floor(left/60);
+    const ss=Math.floor(left%60).toString().padStart(2,"0");
+    return mm+":"+ss+" igjen";
+  }
+  return "Ubegrenset";
+}
+
+function endMatch(reason){
+  if(matchEnded) return;
+  matchEnded=true;
+  running=false;
+
+  let text="";
+  if(playerCount===1){
+    const p=boards[0];
+    if(reason==="score") text=p.name+" nådde poenggrensen med "+p.score+" poeng!";
+    else if(reason==="time") text="Tiden er ute! "+p.name+" fikk "+p.score+" poeng.";
+    else text="Spillet ble stoppet. "+p.name+" fikk "+p.score+" poeng.";
+  }else{
+    const sorted=[...boards].sort((a,b)=>b.score-a.score);
+    const best=sorted[0],other=sorted[1];
+    if(best.score===other.score){
+      text="Omgangen er ferdig – uavgjort med "+best.score+" poeng!";
+    }else{
+      text=best.name+" vant med "+best.score+" poeng mot "+other.score+".";
+    }
+  }
+  showFinish(text);
+}
+
+
+function update(dt){
+  for(const b of boards) updateBoard(b,dt);
+  updateParticles(dt);
+  updateFireworks(dt);
+
+  // Poenggrense: første spiller som når grensen avslutter omgangen.
+  if(roundMode==="score"){
+    const winner=boards.find(b=>b.score>=roundTarget);
+    if(winner && !matchEnded){
+      endMatch("score");
+      return;
+    }
+  }
+
+  // Tidsgrense: høyeste poeng når klokka går ut.
+  if(roundMode==="time"){
+    const elapsed=(performance.now()-matchStart)/1000;
+    if(elapsed>=roundTarget && !matchEnded){
+      endMatch("time");
+      return;
+    }
+  }
+
+  // Oppdater tids-/modusvisning kontinuerlig.
+  const title=document.querySelector(".centerTitle");
+  if(title) title.textContent="🌿 KULEJUNGEL · "+matchStatusText()+" 🌿";
+}
+
+
+function spawnCritter(b){
+  if(b.traps.length<2 || b.critters.length>=2) return;
+  let a=Math.floor(Math.random()*b.traps.length), c=a;
+  while(c===a) c=Math.floor(Math.random()*b.traps.length);
+  const from=b.traps[a], to=b.traps[c];
+  const type=Math.random()<.52?"centipede":"beetle";
+  const bend=rnd(-1,1)*Math.min(b.w,b.h)*rnd(.055,.13);
+  const dx=to.x-from.x,dy=to.y-from.y,len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len,ny=dx/len;
+  const speed= type==="centipede" ? rnd(.075,.115) : rnd(.090,.135);
+  b.critters.push({
+    type, x:from.x,y:from.y,
+    fromX:from.x,fromY:from.y,toX:to.x,toY:to.y,
+    ctrlX:(from.x+to.x)/2+nx*bend,ctrlY:(from.y+to.y)/2+ny*bend,
+    t:0,speed,size:clamp(Math.min(b.w,b.h)*(type==="centipede"?.020:.018),8,18),
+    phase:rnd(0,6.28),hurtCooldown:0,scared:0,angle:0,stepTimer:rnd(.08,.34),penalized:false
+  });
+}
+function bezierPoint(q,t){
+  const u=1-t;
+  return {
+    x:u*u*q.fromX+2*u*t*q.ctrlX+t*t*q.toX,
+    y:u*u*q.fromY+2*u*t*q.ctrlY+t*t*q.toY
+  };
+}
+function updateCritters(b,dt){ b.critters.length=0; return;
+  b.critterTimer-=dt;
+  if(b.critterTimer<=0){
+    spawnCritter(b);
+    b.critterTimer=rnd(8.0,17.0);
+  }
+  for(let i=b.critters.length-1;i>=0;i--){
+    const q=b.critters[i];
+    q.phase+=dt*(q.type==="centipede"?11:8);
+    q.hurtCooldown=Math.max(0,q.hurtCooldown-dt);
+    q.scared=Math.max(0,q.scared-dt*1.8);
+    q.stepTimer-=dt*(q.scared>0?1.35:1);
+    if(q.stepTimer<=0 && q.t>.035 && q.t<.96){
+      playCritterStep(q.type);
+      q.stepTimer=q.type==="beetle" ? rnd(.26,.38) : rnd(.12,.19);
+    }
+    const old=bezierPoint(q,q.t);
+    q.t+=dt*q.speed*(q.scared>0?1.75:1);
+    if(q.t>=1.02){ b.critters.splice(i,1); continue; }
+    const p=bezierPoint(q,clamp(q.t,0,1));
+    q.x=p.x;q.y=p.y;
+    q.angle=Math.atan2(p.y-old.y,p.x-old.x);
+
+    // Småkrypene er bare visuelle. Når en aktiv kule kommer nær, sier de "auu" og skynder seg.
+    for(const ball of b.balls){
+      if(!ball.active || ball.done) continue;
+      const d2=dist2(ball.x,ball.y,q.x,q.y);
+      const contact=ball.r + q.size*.72;
+      if(d2<contact*contact && !q.penalized){
+        q.penalized=true;
+        q.scared=1;
+        b.score-=100;
+        playFunnyOuch();
+        popText(q.x,q.y-q.size*2.5,"−100  AUU!","#ffdf9b");
+        burst(q.x,q.y,10,"dust","#9c7449");
+        updateHUD();
+      }else{
+        const near=ball.r + q.size*1.9 + 12;
+        if(d2<near*near && q.hurtCooldown<=0){
+          q.hurtCooldown=1.25;
+          q.scared=1;
+          playFunnyOuch();
+          popText(q.x,q.y-q.size*2.0,["AUU!","AUA!","OOOI!"][Math.floor(Math.random()*3)],"#fff0ba");
+          burst(q.x,q.y,6,"dust","#9c7449");
+        }
+      }
+    }
+  }
+}
+
+function rerouteCuteAnimal(a,b,x,y){
+  const margin=Math.max(60,a.size*1.35);
+
+  // Dyret går som oftest videre mot motsatt side av brettet, men ikke helt rett.
+  let goRight;
+  if(x < b.x+b.w*.38) goRight=true;
+  else if(x > b.x+b.w*.62) goRight=false;
+  else goRight=Math.random()<.5;
+
+  const tx=goRight ? b.x+b.w+margin : b.x-margin;
+  const ty=b.y+b.h*rnd(.16,.72);
+
+  a.fromX=x;
+  a.fromY=y;
+  a.toX=tx;
+  a.toY=ty;
+  a.ctrlX=(x+tx)/2+rnd(-.10,.10)*b.w;
+  a.ctrlY=(y+ty)/2+rnd(-.22,.22)*b.h;
+  a.t=0;
+  a.wanderSeed=rnd(0,Math.PI*2);
+}
+
+function availableAnimalHoles(b){
+  // Bruk små fellehull og målhull som ikke allerede er fylt av en kule.
+  return [
+    ...b.traps,
+    ...b.holes.filter(h=>!h.filled)
+  ];
+}
+
+function spawnCuteAnimal(b){
+  if(b.animals.length>=1) return;
+
+  const type=Math.random()<.58?"squirrel":"hedgehog";
+  const fromLeft=Math.random()<.5;
+  const margin=82;
+  const y1=b.y+b.h*rnd(.18,.70);
+  const y2=b.y+b.h*rnd(.18,.70);
+  const x1=fromLeft?b.x-margin:b.x+b.w+margin;
+  const x2=fromLeft?b.x+b.w+margin:b.x-margin;
+
+  b.animals.push({
+    type,
+    x:x1,y:y1,
+    fromX:x1,fromY:y1,
+    toX:x2,toY:y2,
+    ctrlX:(x1+x2)/2+rnd(-.06,.06)*b.w,
+    ctrlY:(y1+y2)/2+rnd(-.22,.22)*b.h,
+    t:0,
+    speed:type==="squirrel"?rnd(.052,.078):rnd(.038,.058),
+
+    // Minst dobbelt så store som i v10.5.
+    size:clamp(Math.min(b.w,b.h)*(type==="squirrel"?.090:.096),38,72),
+
+    phase:rnd(0,Math.PI*2),
+    angle:0,
+    wobble:rnd(.90,1.55),
+    wanderSeed:rnd(0,Math.PI*2),
+    stumble:0,
+    startled:0,
+    cooldown:0,
+    bumpSide:Math.random()<.5?-1:1,
+
+    holeState:"walk",
+    holeTimer:0,
+    holeScale:1,
+    holeCooldown:rnd(1.2,2.6),
+    fallHole:null,
+    exitHole:null,
+    fallStartX:x1,
+    fallStartY:y1
+  });
+}
+
+function updateCuteAnimals(b,dt){ b.animals.length=0; return;
+  b.animalTimer-=dt;
+  if(b.animalTimer<=0){
+    spawnCuteAnimal(b);
+    b.animalTimer=rnd(15,29);
+  }
+
+  for(let i=b.animals.length-1;i>=0;i--){
+    const a=b.animals[i];
+    a.phase+=dt*(a.type==="squirrel"?8.1:5.4);
+    a.stumble=Math.max(0,a.stumble-dt*1.65);
+    a.startled=Math.max(0,a.startled-dt*1.45);
+    a.cooldown=Math.max(0,a.cooldown-dt);
+    a.holeCooldown=Math.max(0,a.holeCooldown-dt);
+
+    // ----------------------------------------------------------
+    // Snubler ned i et hull.
+    // ----------------------------------------------------------
+    if(a.holeState==="fall"){
+      a.holeTimer+=dt;
+      const q=clamp(a.holeTimer/.58,0,1);
+      const ease=q*q*(3-2*q);
+
+      a.x=lerp(a.fallStartX,a.fallHole.x,ease);
+      a.y=lerp(a.fallStartY,a.fallHole.y,ease);
+      a.holeScale=1-ease*.94;
+      a.angle+=dt*4.4*a.bumpSide;
+
+      if(q>=1){
+        const holes=availableAnimalHoles(b).filter(h=>h!==a.fallHole);
+        a.exitHole=holes.length ? holes[Math.floor(Math.random()*holes.length)] : a.fallHole;
+        a.x=a.exitHole.x;
+        a.y=a.exitHole.y;
+        a.holeState="hide";
+        a.holeTimer=0;
+        a.holeScale=.04;
+      }
+      continue;
+    }
+
+    // Borte under bakken et lite øyeblikk.
+    if(a.holeState==="hide"){
+      a.holeTimer+=dt;
+      a.holeScale=.03;
+      if(a.holeTimer>.36){
+        a.holeState="emerge";
+        a.holeTimer=0;
+        popText(a.x,a.y-a.size*.75,"HEI IGJEN!","#fff0b8");
+        burst(a.x,a.y,12,"dust","#a2764b");
+      }
+      continue;
+    }
+
+    // Dukker opp av et annet hull.
+    if(a.holeState==="emerge"){
+      a.holeTimer+=dt;
+      const q=clamp(a.holeTimer/.62,0,1);
+      const ease=1-Math.pow(1-q,3);
+      a.holeScale=.04+.96*ease;
+      a.angle+=Math.sin(a.phase*1.8)*dt*.9;
+
+      if(q>=1){
+        a.holeState="walk";
+        a.holeTimer=0;
+        a.holeScale=1;
+        a.holeCooldown=2.6;
+        a.stumble=.55;
+        rerouteCuteAnimal(a,b,a.x,a.y);
+      }
+      continue;
+    }
+
+    // ----------------------------------------------------------
+    // Vanlig gange – mer sjangling og mindre rett linje.
+    // ----------------------------------------------------------
+    const prevX=a.x, prevY=a.y;
+    const baseBefore=bezierPoint(a,a.t);
+
+    let speedMul=1;
+    if(Math.sin(a.phase*.69+a.wanderSeed)>0.92) speedMul=.35; // liten nøling
+    if(a.stumble>0) speedMul=.46;
+    if(a.startled>0) speedMul=1.38;
+
+    a.t+=dt*a.speed*speedMul;
+
+    if(a.t>=1.03){
+      b.animals.splice(i,1);
+      continue;
+    }
+
+    const p=bezierPoint(a,clamp(a.t,0,1));
+    const dx=p.x-baseBefore.x;
+    const dy=p.y-baseBefore.y;
+    const len=Math.hypot(dx,dy)||1;
+    const nx=-dy/len;
+    const ny=dx/len;
+
+    // To bølger samtidig gir uregelmessig, tøysete rusling.
+    const wander=
+      Math.sin(a.phase*.43+a.wanderSeed)*a.size*.68*a.wobble +
+      Math.sin(a.phase*.17+a.wanderSeed*1.7)*a.size*.34;
+
+    // Litt frem-og-tilbake-jaging i selve banen.
+    const tinyLurch=Math.sin(a.phase*1.18+a.wanderSeed)*a.size*.055;
+
+    a.x=p.x+nx*wander+(dx/len)*tinyLurch;
+    a.y=p.y+ny*wander+(dy/len)*tinyLurch;
+
+    const mdx=a.x-prevX;
+    const mdy=a.y-prevY;
+    if(Math.hypot(mdx,mdy)>.15){
+      a.angle=Math.atan2(mdy,mdx);
+    }
+
+    // Av og til et tydelig lite feiltrinn.
+    if(a.stumble<=0 && Math.sin(a.phase*.27+a.wanderSeed*2.1)>.992){
+      a.stumble=.38;
+      a.bumpSide*=-1;
+    }
+
+    // ----------------------------------------------------------
+    // Kan falle ned i et hull.
+    // ----------------------------------------------------------
+    if(a.holeCooldown<=0){
+      const holes=availableAnimalHoles(b);
+      let nearest=null,nearestDist=Infinity;
+
+      for(const h of holes){
+        const d=Math.hypot(a.x-h.x,a.y-h.y);
+        if(d<nearestDist){nearestDist=d;nearest=h;}
+      }
+
+      if(nearest){
+        const fallReach=nearest.r + a.size*.16;
+        if(nearestDist<fallReach){
+          a.holeState="fall";
+          a.holeTimer=0;
+          a.fallHole=nearest;
+          a.fallStartX=a.x;
+          a.fallStartY=a.y;
+          a.stumble=1;
+          a.bumpSide*=-1;
+
+          popText(
+            a.x,
+            a.y-a.size*1.10,
+            a.type==="squirrel" ? "OOOPS!" : "Å NEI!",
+            "#fff1bc"
+          );
+          burst(nearest.x,nearest.y,14,"dust","#8f6842");
+          lightPulse(nearest.x,nearest.y,"#ffe4a0",.30);
+          continue;
+        }
+      }
+    }
+
+    // ----------------------------------------------------------
+    // Faktisk fysisk kontakt med aktiv kule.
+    // ----------------------------------------------------------
+    for(const ball of b.balls){
+      if(!ball.active || ball.done || !ball.hasStarted) continue;
+
+      const reach=ball.r+a.size*(a.type==="squirrel"?.72:.67);
+      const cdx=ball.x-a.x;
+      const cdy=ball.y-a.y;
+      const d=Math.hypot(cdx,cdy);
+
+      if(d<reach && a.cooldown<=0){
+        const cnx=d>1?cdx/d:Math.cos(a.angle);
+        const cny=d>1?cdy/d:Math.sin(a.angle);
+        const animalSpeed=a.type==="squirrel"?205:145;
+        const incoming=Math.max(85,Math.hypot(ball.vx,ball.vy)*.28);
+
+        ball.vx += cnx*(animalSpeed+incoming);
+        ball.vy += cny*(animalSpeed+incoming);
+
+        a.cooldown=1.35;
+        a.stumble=1;
+        a.startled=1;
+        a.bumpSide*=-1;
+
+        popText(
+          a.x,
+          a.y-a.size*1.18,
+          a.type==="squirrel"
+            ? ["OI!","UPS!","HOPPLA!"][Math.floor(Math.random()*3)]
+            : ["UFF!","OI DA!","OPS!"][Math.floor(Math.random()*3)],
+          "#fff3c5"
+        );
+        burst(a.x,a.y,11,"dust","#a77d52");
+        lightPulse(a.x,a.y,"#fff0b0",.25);
+      }
+    }
+  }
+}
+
+function spawnScorpion(b){
+  if(b.scorpions.length>=1) return;
+  const fromLeft=Math.random()<.5;
+  const margin=34;
+  const y1=b.y+b.h*rnd(.18,.72);
+  const y2=b.y+b.h*rnd(.18,.72);
+  const x1=fromLeft?b.x-margin:b.x+b.w+margin;
+  const x2=fromLeft?b.x+b.w+margin:b.x-margin;
+  const bend=rnd(-.11,.11)*b.h;
+  b.scorpions.push({
+    x:x1,y:y1,fromX:x1,fromY:y1,toX:x2,toY:y2,
+    ctrlX:(x1+x2)/2,ctrlY:(y1+y2)/2+bend,
+    t:0,speed:rnd(.105,.155),size:clamp(Math.min(b.w,b.h)*.025,11,21),
+    phase:rnd(0,6.28),angle:0
+  });
+}
+function updateScorpions(b,dt){ b.scorpions.length=0; return;
+  b.scorpionTimer-=dt;
+  if(b.scorpionTimer<=0){
+    spawnScorpion(b);
+    b.scorpionTimer=rnd(18,34);
+  }
+  for(let i=b.scorpions.length-1;i>=0;i--){
+    const s=b.scorpions[i];
+    const old=bezierPoint(s,s.t);
+    s.t+=dt*s.speed;
+    s.phase+=dt*12;
+    if(s.t>=1.02){b.scorpions.splice(i,1);continue;}
+    const p=bezierPoint(s,clamp(s.t,0,1));
+    s.x=p.x;s.y=p.y;s.angle=Math.atan2(p.y-old.y,p.x-old.x);
+
+    for(const ball of b.balls){
+      if(!ball.active||ball.done||!ball.hasStarted) continue;
+      const hit=ball.r+s.size*.74;
+      if(dist2(ball.x,ball.y,s.x,s.y)<hit*hit){
+        playSplat();
+        popText(s.x,s.y-s.size*2.1,"SPLATT!","#d8c087");
+        burst(s.x,s.y,22,"splat","#4b3824");
+        b.shake=Math.max(b.shake,3.5);
+        b.scorpions.splice(i,1);
+        break;
+      }
+    }
+  }
+}
+
+function updateBoard(b,dt){
+  b.shake*=Math.pow(.03,dt);
+  const d=b.diff;
+  updateCritters(b,dt);
+  updateScorpions(b,dt);
+  updateCuteAnimals(b,dt);
+  for(const ball of b.balls){
+    if(ball.done) continue;
+    // Bare én kule er aktiv om gangen. Ubrukte og respawnede kuler står helt stille.
+    if(!ball.active || (!ball.hasStarted && ball.dragId===null)){
+      ball.vx=0;ball.vy=0;ball.x=ball.startX;ball.y=ball.startY;
+      ball.glow*=Math.pow(.35,dt);
+      continue;
+    }
+    ball.glow*=Math.pow(.08,dt);
+    ball.spin+=(Math.hypot(ball.vx,ball.vy)/Math.max(1,ball.r))*dt*.22;
+
+    if(ball.fall>0){
+      ball.fall += dt;
+      ball.vx*=.75;ball.vy*=.75;
+      if(ball.fall>.55) respawnBall(b,ball);
+      continue;
+    }
+
+    if(ball.stuck){
+      // Delvis nedi for lite hull: svært treg, men kan tas opp igjen med fingeren.
+      ball.vx*=Math.pow(.025,dt);
+      ball.vy*=Math.pow(.025,dt);
+      const h=ball.stuck;
+      ball.x=lerp(ball.x,h.x,1-Math.pow(.08,dt));
+      ball.y=lerp(ball.y,h.y,1-Math.pow(.08,dt));
+      continue;
+    }
+
+    const grad=terrainGrad(b,ball.x,ball.y);
+    // Tyngdekraft nedover terrenget.
+    ball.vx += -grad.x*d.slope*650*dt;
+    ball.vy += -grad.y*d.slope*650*dt;
+
+    if(ball.dragId!==null){
+      const dx=ball.targetX-ball.x,dy=ball.targetY-ball.y;
+      // Kula følger fingeren raskt, men uten å teleportere. Slippfarten beregnes separat.
+      const follow=1-Math.pow(.0007,dt);
+      ball.x+=dx*follow;ball.y+=dy*follow;
+      ball.vx*=Math.pow(.42,dt*60);
+      ball.vy*=Math.pow(.42,dt*60);
+    }
+
+    // Hjelpemagnet mot riktig hull.
+    const goal=b.holes[ball.id];
+    if(goal && !goal.filled && d.magnet>0){
+      const dx=goal.x-ball.x,dy=goal.y-ball.y,len=Math.hypot(dx,dy);
+      if(len<d.magnet+ball.r){
+        const t=1-len/(d.magnet+ball.r);
+        ball.vx += (dx/(len||1))*d.magnetForce*70*t*dt;
+        ball.vy += (dy/(len||1))*d.magnetForce*70*t*dt;
+      }
+    }
+
+    // Friksjon og gjørme.
+    let fr=d.friction;
+    for(const m of b.mud) if(pointInEllipse(ball.x,ball.y,m)) fr*=.91;
+    ball.vx*=Math.pow(fr,dt*60);
+    ball.vy*=Math.pow(fr,dt*60);
+
+    const sp=Math.hypot(ball.vx,ball.vy);
+    if(sp>d.maxSpeed){const k=d.maxSpeed/sp;ball.vx*=k;ball.vy*=k;}
+
+    // Litt støv bak raske kuler gir mer fysisk pinball/klinkekule-følelse.
+    ball.dustT=(ball.dustT||0)-dt;
+    if(ball.dragId===null && sp>420 && ball.dustT<=0){
+      ball.dustT=.045;
+      burst(ball.x-ball.vx*.018,ball.y-ball.vy*.018,2,"dust","#b9915f");
+    }
+
+    ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
+
+    collideBounds(b,ball);
+    collideRocks(b,ball);
+    checkHoles(b,ball);
+  }
+}
+
+function collideBounds(b,ball){
+  const r=ball.r;
+  const bounce=b.diff.bounce;
+  if(ball.x-r<b.x){ball.x=b.x+r;ball.vx=Math.abs(ball.vx)*bounce;playRicochet(ball)}
+  if(ball.x+r>b.x+b.w){ball.x=b.x+b.w-r;ball.vx=-Math.abs(ball.vx)*bounce;playRicochet(ball)}
+  if(ball.y-r<b.y){ball.y=b.y+r;ball.vy=Math.abs(ball.vy)*bounce;playRicochet(ball)}
+  if(ball.y+r>b.y+b.h){ball.y=b.y+b.h-r;ball.vy=-Math.abs(ball.vy)*bounce;playRicochet(ball)}
+}
+
+function playRicochet(ball){
+  const sp=Math.hypot(ball.vx,ball.vy);
+  if(sp>280 && Math.random()<.36) playSound("bump",Math.min(.68,sp/1550));
+  if(sp>520){
+    burst(ball.x,ball.y,7,"spark","#fff0b0");
+    lightPulse(ball.x,ball.y,"#ffe39a",.30);
+  }
+}
+
+function collideRocks(b,ball){
+  for(const rock of b.rocks){
+    const dx=ball.x-rock.x,dy=ball.y-rock.y;
+    const min=ball.r+rock.r;
+    const dd=dx*dx+dy*dy;
+    if(dd<min*min){
+      const len=Math.sqrt(dd)||1,nx=dx/len,ny=dy/len;
+      const overlap=min-len;
+      ball.x+=nx*overlap;ball.y+=ny*overlap;
+      const dot=ball.vx*nx+ball.vy*ny;
+      if(dot<0){
+        const restitution=1+b.diff.bounce;
+        ball.vx-=restitution*dot*nx;ball.vy-=restitution*dot*ny;
+        // Litt ekstra pinball-kick fra steinene ved harde treff.
+        if(Math.abs(dot)>220){ball.vx+=nx*68;ball.vy+=ny*68; lightPulse(ball.x,ball.y,"#fff1ad",.42);}
+        if(Math.abs(dot)>105){
+          const power=clamp(Math.abs(dot)/720,.22,1);
+          if(Math.random()<.72) playStoneClack(power);
+        }
+      }
+    }
+  }
+}
+
+function checkHoles(b,ball){
+  const speed=Math.hypot(ball.vx,ball.vy);
+  const all=[...b.holes.map(h=>({...h,kind:"goal"})),...b.traps.map(h=>({...h,kind:"trap"}))];
+  for(const hole of all){
+    const dx=ball.x-hole.x,dy=ball.y-hole.y,len=Math.hypot(dx,dy);
+    const opening=hole.r;
+    if(len>opening+ball.r*.58) continue;
+
+    if(hole.kind==="goal" && hole.id===ball.id){
+      const capture=opening*.62 + ball.r*.18 + (b.diffKey==="veryeasy"?16:b.diffKey==="easy"?9:0);
+      if(len<capture && speed < (b.diffKey==="hard"?880:1050)){
+        goalBall(b,ball,b.holes[hole.id]); return;
+      }
+    }else{
+      // Mens spilleren holder kula, skal feil hull aldri kunne låse den fast.
+      // Man kan derfor alltid gripe en fastsittende kule og dra den rett opp igjen.
+      if(ball.dragId!==null) continue;
+
+      // Større kule enn åpningen: kan ikke falle ned. Den setter seg fast i kanten.
+      const canFall = ball.r <= opening*(1.0 + b.diff.fallGrace*.12);
+      if(!canFall){
+        if(len<opening*.68){
+          ball.stuck={x:hole.x+(dx/(len||1))*opening*.18,y:hole.y+(dy/(len||1))*opening*.18,hole};
+          ball.vx*=.1;ball.vy*=.1;
+          popText(ball.x,ball.y-45,"SITTER FAST! 😄","#fff6a8");
+          playSound("bump",.45);
+          burst(ball.x,ball.y,12,"dust");
+          b.shake=Math.max(b.shake,3);
+          return;
+        }
+      }else{
+        const trapCapture=opening*.58;
+        if(len<trapCapture){
+          ball.fall=.001;
+          ball.dragId=null;
+          ball.vx*=.1;ball.vy*=.1;
+          popText(ball.x,ball.y-38,["PLOPP!","OISANN!","HUPS!"][Math.floor(Math.random()*3)],"#ffdf74");
+          playSound(Math.random()<.55?"trap":"bump",.62);
+          burst(ball.x,ball.y,24,"trap");
+          b.shake=Math.max(b.shake,6);
+          return;
+        }
+      }
+    }
+  }
+}
+
+function goalBall(b,ball,hole){
+  ball.done=true;ball.dragId=null;ball.vx=ball.vy=0;
+  hole.filled=true;
+  ball.x=hole.x;ball.y=hole.y;
+
+  const seconds=ball.runStart===null?20:Math.max(.1,(performance.now()-ball.runStart)/1000);
+  const speedBonus=Math.max(0,Math.round(1000-seconds*55));
+  const earned=1000+speedBonus;
+  b.score+=earned;
+
+  burst(hole.x,hole.y,34,"goal",ball.color);
+  goalCelebration(hole.x,hole.y,ball.color);
+  popText(hole.x,hole.y-64,"+"+earned+" POENG",ball.color);
+  setTimeout(()=>popText(hole.x,hole.y-35,["KJEMPEBRA!","FULLTREFFER!","YES!","STRÅLENDE!"][Math.floor(Math.random()*4)],ball.color),110);
+  playShortApplause();
+  const completed=b.balls.filter(x=>x.done).length;
+  if(completed<7){
+    const next=b.balls[completed];
+    next.active=true;next.hasStarted=false;next.vx=next.vy=0;next.glow=1;next.runStart=null;
+    burst(next.x,next.y,28,"respawn",next.color);
+    popText(next.x,next.y-48,"NESTE KULE!",next.color);
+  }else{
+    b.complete=true;
+    b.finishTime=performance.now();
+    if(!b.resetPending){
+      b.resetPending=true;
+      screenFlash=.78;
+      screenFlashColor="#fff1b3";
+      confettiRain(210);
+      celebrateFullScreen();
+      popText(W*.5,H*.30,"ALLE KULENE I MÅL! 🎆","#fff3b0");
+      setTimeout(()=>{
+        if(!matchEnded && running) resetBoardCycle(b);
+      },1650);
+    }
+  }
+  updateHUD();
+}
+
+function respawnBall(b,ball){
+  ball.x=ball.startX;ball.y=ball.startY;ball.vx=ball.vy=0;ball.fall=0;ball.stuck=null;ball.dragId=null;ball.glow=1;ball.hasStarted=false;ball.flickVX=ball.flickVY=0;
+  burst(ball.x,ball.y,18,"respawn",ball.color);
+  popText(ball.x,ball.y-45,"PRØV IGJEN 😊","#ffffff");
+  playSound("chime",.45);
+}
+
+function updateHUD(){
+  if(!boards.length)return;
+  const p1=boards[0],n1=p1.balls.filter(x=>x.done).length;
+  document.querySelector("#hudP1 .hudName").textContent=p1.name+" · "+p1.diff.label;
+  document.querySelector("#hudP1 .hudScore").textContent="Poeng: "+p1.score+" · Runde "+(p1.cycles+1)+" · "+n1+" / 7 i mål · "+(n1<7?"nå: "+COLORS[n1].name+" kule":"fyrverkeri!");
+  if(boards[1]){
+    const p2=boards[1],n2=p2.balls.filter(x=>x.done).length;
+    document.querySelector("#hudP2 .hudName").textContent=p2.name+" · "+p2.diff.label;
+    document.querySelector("#hudP2 .hudScore").textContent="Poeng: "+p2.score+" · Runde "+(p2.cycles+1)+" · "+n2+" / 7 i mål · "+(n2<7?"nå: "+COLORS[n2].name+" kule":"fyrverkeri!");
+  }
+}
+
+function showFinish(txt){
+  document.getElementById("finishText").textContent=txt;
+  finish.style.display="flex";
+}
+
+function popText(x,y,text,color){
+  const el=document.createElement("div");
+  el.className="popMessage";el.textContent=text;el.style.left=x+"px";el.style.top=y+"px";el.style.color=color;
+  messageLayer.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
+
+function lightPulse(x,y,color="#ffffff",strength=1){
+  for(let i=0;i<3;i++){
+    particles.push({
+      x,y,vx:0,vy:0,life:.48+i*.13,age:-i*.055,
+      size:10+i*7,grow:(115+i*42)*strength,
+      color,type:"ring",rot:0,vr:0
+    });
+  }
+}
+
+function confettiBurst(x,y,count=70){
+  for(let i=0;i<count;i++){
+    const ang=rnd(-Math.PI*.92,-Math.PI*.08);
+    const sp=rnd(100,390);
+    particles.push({
+      x,y,
+      vx:Math.cos(ang)*sp+rnd(-55,55),
+      vy:Math.sin(ang)*sp-rnd(10,110),
+      life:rnd(1.10,2.05),age:0,
+      size:rnd(4,10),
+      color:COLORS[Math.floor(Math.random()*COLORS.length)].hex,
+      type:"confetti",rot:rnd(0,Math.PI*2),vr:rnd(-11,11),
+      shape:Math.random()<.28?"circle":"strip"
+    });
+  }
+}
+
+function confettiRain(count=170){
+  for(let i=0;i<count;i++){
+    particles.push({
+      x:rnd(0,W),y:rnd(-H*.22,20),
+      vx:rnd(-75,75),vy:rnd(45,185),
+      life:rnd(2.2,4.0),age:0,
+      size:rnd(4,11),
+      color:COLORS[Math.floor(Math.random()*COLORS.length)].hex,
+      type:"confetti",rot:rnd(0,Math.PI*2),vr:rnd(-9,9),
+      shape:Math.random()<.24?"circle":"strip"
+    });
+  }
+}
+
+function goalCelebration(x,y,color){
+  screenFlash=Math.max(screenFlash,.46);
+  screenFlashColor=color;
+  lightPulse(x,y,color,1.15);
+  confettiBurst(x,y,78);
+  burst(x,y,28,"spark","#fff3bd");
+}
+
+function burst(x,y,count,type,color){
+  for(let i=0;i<count;i++){
+    const ang=rnd(0,Math.PI*2),sp=rnd(type==="goal"?90:45,type==="goal"?330:190);
+    particles.push({
+      x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-rnd(0,90),
+      life:rnd(.55,1.25),age:0,size:rnd(3,10),
+      color: color || (type==="trap"?"#b7d8a3":COLORS[Math.floor(Math.random()*COLORS.length)].hex),
+      type,rot:rnd(0,6.28),vr:rnd(-6,6)
+    });
+  }
+}
+function updateParticles(dt){
+  particles=particles.filter(p=>{
+    p.age+=dt;
+    if(p.age>p.life)return false;
+    if(p.type==="ring"){
+      if(p.age>=0) p.size+=p.grow*dt;
+      return true;
+    }
+    p.vy+=p.type==="confetti"?175*dt:240*dt;
+    p.vx*=Math.pow(p.type==="confetti"?.985:.96,dt*60);
+    p.vy*=Math.pow(.985,dt*60);
+    p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;
+    return true;
+  });
+  screenFlash*=Math.pow(.025,dt);
+}
+
+function draw(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#1b120b";ctx.fillRect(0,0,W,H);
+  for(const b of boards) drawBoard(b);
+  drawParticles();
+  if(screenFlash>.008){
+    ctx.fillStyle=hexAlpha(screenFlashColor,clamp(screenFlash*.34,0,.22));
+    ctx.fillRect(0,0,W,H);
+  }
+  if(playerCount===2 && boards.length===2){
+    ctx.fillStyle="rgba(255,255,255,.2)";ctx.fillRect(boards[1].x-3,boards[1].y,6,boards[1].h);
+  }
+}
+
+function drawBoard(b){
+  ctx.save();
+  ctx.beginPath();ctx.rect(b.x,b.y,b.w,b.h);ctx.clip();
+  if(b.shake>0)ctx.translate(rnd(-b.shake,b.shake),rnd(-b.shake,b.shake));
+  if(b.terrainCanvas)ctx.drawImage(b.terrainCanvas,b.x,b.y,b.w,b.h);
+
+  // Høydene vises av lys/skygge i jordteksturen. Konturpasset er slått av
+  // for å frigjøre ytelse til konfetti, lys og pinball-effekter.
+
+  // Innvendig skyggekant gjør at jordflaten oppleves som et fysisk brett.
+  const edge=ctx.createLinearGradient(b.x,b.y,b.x,b.y+34);
+  edge.addColorStop(0,"rgba(25,14,7,.42)");edge.addColorStop(1,"rgba(25,14,7,0)");
+  ctx.fillStyle=edge;ctx.fillRect(b.x,b.y,b.w,36);
+
+  drawMud(b);
+  drawStartZone(b);
+  b.holes.forEach(h=>drawNaturalHole(h,false));
+  b.traps.forEach(h=>drawNaturalHole(h,true));
+
+
+
+  b.rocks.forEach(r=>drawRock(r));
+  b.balls.forEach(ball=>drawPhotographicBall(b,ball));
+
+  // spilleretikett inne på banen, viktig på tabletop.
+  ctx.fillStyle="rgba(0,0,0,.28)";
+  roundRect(ctx,b.x+12,b.y+b.h-42,Math.min(280,b.w-24),31,12);ctx.fill();
+  ctx.fillStyle="#fff";ctx.font="800 15px Segoe UI, Arial";ctx.fillText(b.name+" · "+b.diff.label,b.x+24,b.y+b.h-21);
+  ctx.restore();
+}
+
+function drawContourApprox(b,level){
+  // Lettvektig "marching dots": små buer der høyden er nær nivået.
+  const cols=34,rows=24;
+  for(let j=1;j<rows;j++){
+    for(let i=1;i<cols;i++){
+      const x=b.x+i*b.w/cols,y=b.y+j*b.h/rows;
+      const h=terrainH(b,x,y);
+      if(Math.abs(h-level)<.025){
+        ctx.beginPath();ctx.arc(x,y,3.2,0,Math.PI*2);ctx.stroke();
+      }
+    }
+  }
+}
+
+function drawMud(b){
+  for(const m of b.mud){
+    const seed=m.seed||1234;
+    ctx.save();
+    ctx.translate(m.x,m.y);
+    ctx.rotate(-.08+(prand(seed)-.5)*.14);
+
+    // Dette er nå løs, mørk jord/grus – ikke søle eller vann.
+    const pts=28;
+    const outline=[];
+    for(let i=0;i<pts;i++){
+      const a=i/pts*Math.PI*2;
+      outline.push({
+        x:Math.cos(a)*m.rx*(.80+prand(seed+10+i)*.34),
+        y:Math.sin(a)*m.ry*(.77+prand(seed+50+i)*.36)
+      });
+    }
+
+    ctx.beginPath();
+    outline.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.closePath();
+
+    const base=ctx.createRadialGradient(-m.rx*.12,-m.ry*.18,4,0,0,Math.max(m.rx,m.ry));
+    base.addColorStop(0,"rgba(8,6,4,.40)");
+    base.addColorStop(.45,"rgba(12,9,6,.28)");
+    base.addColorStop(.78,"rgba(16,12,8,.12)");
+    base.addColorStop(1,"rgba(16,12,8,0)");
+    ctx.fillStyle=base;
+    ctx.fill();
+
+    // Mørke, finkornede felt inne i området.
+    for(let i=0;i<95;i++){
+      const a=prand(seed+100+i)*Math.PI*2;
+      const rad=Math.sqrt(prand(seed+150+i))*.90;
+      const x=Math.cos(a)*m.rx*rad;
+      const y=Math.sin(a)*m.ry*rad;
+      const rr=.55+prand(seed+200+i)*1.75;
+      const palette=[
+        "rgba(38,30,24,.44)",
+        "rgba(51,39,29,.48)",
+        "rgba(83,61,39,.48)",
+        "rgba(104,78,50,.40)"
+      ];
+      ctx.fillStyle=palette[Math.floor(prand(seed+250+i)*palette.length)];
+      ctx.beginPath();
+      ctx.ellipse(x,y,rr,rr*(.38+prand(seed+300+i)*.50),a,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    // Mye synlig, løs grus. Den forskjellige tettheten gjør feltet lett å lese som et materiale.
+    for(let i=0;i<78;i++){
+      const a=prand(seed+360+i)*Math.PI*2;
+      const rad=Math.sqrt(prand(seed+410+i))*.84;
+      const x=Math.cos(a)*m.rx*rad;
+      const y=Math.sin(a)*m.ry*rad;
+      const rr=1.1+prand(seed+460+i)*4.2;
+      const sy=.42+prand(seed+500+i)*.34;
+
+      ctx.fillStyle="rgba(24,19,15,.31)";
+      ctx.beginPath();
+      ctx.ellipse(x+rr*.28,y+rr*.35,rr*1.05,rr*sy*.68,0,0,Math.PI*2);
+      ctx.fill();
+
+      const stone=prand(seed+540+i)>.52;
+      ctx.fillStyle=stone
+        ? (prand(seed+570+i)>.5?"rgba(103,96,84,.72)":"rgba(74,70,62,.70)")
+        : (prand(seed+570+i)>.5?"rgba(102,70,43,.70)":"rgba(79,55,37,.69)");
+      ctx.beginPath();
+      ctx.ellipse(x,y,rr*.84,rr*sy,(prand(seed+610+i)-.5)*.9,0,Math.PI*2);
+      ctx.fill();
+
+      // Liten matt slitasjeflekk på noen steiner.
+      if(stone && prand(seed+650+i)>.50){
+        ctx.fillStyle="rgba(225,214,192,.13)";
+        ctx.beginPath();
+        ctx.ellipse(x-rr*.20,y-rr*.14,rr*.22,rr*.07,0,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    // Små fordypninger og mer kompakt grus gjør overflaten ujevn.
+    for(let i=0;i<18;i++){
+      const a=prand(seed+700+i)*Math.PI*2;
+      const rad=Math.sqrt(prand(seed+730+i))*.78;
+      const x=Math.cos(a)*m.rx*rad;
+      const y=Math.sin(a)*m.ry*rad;
+      const rr=2+prand(seed+760+i)*5;
+      ctx.fillStyle="rgba(24,19,15,.18)";
+      ctx.beginPath();
+      ctx.ellipse(x,y,rr,rr*.52,a,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    // Et par grunne riller som om løs jord/grus har blitt dratt til siden.
+    for(let t=0;t<2;t++){
+      const yy=(-.22+t*.38)*m.ry;
+      ctx.strokeStyle="rgba(37,28,21,.20)";
+      ctx.lineWidth=2.0+prand(seed+800+t)*1.8;
+      ctx.beginPath();
+      ctx.moveTo(-m.rx*.66,yy);
+      ctx.bezierCurveTo(-m.rx*.20,yy+m.ry*.09,m.rx*.22,yy-m.ry*.07,m.rx*.66,yy+m.ry*.02);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+}
+
+function drawStartZone(b){
+  const x=b.x+b.w*.07,y=b.y+b.h*.825,w=b.w*.86,h=b.h*.115;
+  ctx.save();
+  const grad=ctx.createLinearGradient(x,y,x,y+h);
+  grad.addColorStop(0,"rgba(213,171,104,.30)");
+  grad.addColorStop(1,"rgba(104,69,38,.22)");
+  ctx.fillStyle=grad;roundRect(ctx,x,y,w,h,24);ctx.fill();
+
+  // Tau-/sporaktig kant i stedet for en lys digital ramme.
+  ctx.strokeStyle="rgba(235,205,151,.48)";ctx.lineWidth=3;ctx.setLineDash([4,8]);
+  roundRect(ctx,x+3,y+3,w-6,h-6,21);ctx.stroke();ctx.setLineDash([]);
+
+  ctx.fillStyle="rgba(49,31,18,.58)";
+  ctx.font=`900 ${Math.max(12,Math.min(19,h*.26))}px Segoe UI,Arial`;
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.fillText("START",x+w*.5,y+h*.19);
+  ctx.restore();
+}
+
+function drawHole(h,trap){
+  h.pulse+=.025;
+  const pulse=1+Math.sin(h.pulse)*.018;
+  ctx.save();
+  ctx.translate(h.x,h.y);
+  ctx.scale(pulse,pulse);
+
+  if(!trap){
+    // Bred, dus fargesone som ser mer ut som pigment/støv i jorda enn en grafisk strek.
+    // Ingen hard kant mot selve hullet.
+    const ring=ctx.createRadialGradient(0,0,h.r*.88,0,0,h.r*1.80);
+    const strength=h.filled?.20:.50;
+    ring.addColorStop(0.00,hexAlpha(h.color,0));
+    ring.addColorStop(0.10,hexAlpha(h.color,strength*.42));
+    ring.addColorStop(0.28,hexAlpha(h.color,strength*.72));
+    ring.addColorStop(0.50,hexAlpha(h.color,strength));
+    ring.addColorStop(0.72,hexAlpha(h.color,strength*.48));
+    ring.addColorStop(1.00,hexAlpha(h.color,0));
+    ctx.fillStyle=ring;
+    ctx.beginPath();
+    ctx.arc(0,0,h.r*1.82,0,Math.PI*2);
+    ctx.fill();
+
+    // Litt ujevn "jordfarge" i ringen gjør at den ikke blir for perfekt.
+    for(let i=0;i<10;i++){
+      const a=i*.628 + h.id*.37;
+      const rr=h.r*(1.20 + .18*Math.sin(i*2.13+h.id));
+      const sz=h.r*(.045 + .022*((i%3)+1));
+      ctx.fillStyle=hexAlpha(h.color,h.filled?.055:.115);
+      ctx.beginPath();
+      ctx.ellipse(Math.cos(a)*rr,Math.sin(a)*rr,sz*1.45,sz,.35*a,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // Svak mørk innsynking i jorda. Ingen lys kant.
+  ctx.fillStyle="rgba(31,19,10,.20)";
+  ctx.beginPath();
+  ctx.ellipse(2,4,h.r*1.07,h.r*1.03,0,0,Math.PI*2);
+  ctx.fill();
+
+  // Selve åpningen er fortsatt helt sort.
+  const grad=ctx.createRadialGradient(-h.r*.22,-h.r*.25,h.r*.04,0,0,h.r);
+  grad.addColorStop(0,"#000000");
+  grad.addColorStop(.62,"#010101");
+  grad.addColorStop(1,"#070605");
+  ctx.fillStyle=grad;
+  ctx.beginPath();
+  ctx.arc(0,0,h.r,0,Math.PI*2);
+  ctx.fill();
+
+  // Kun mørk dybdeskygge inne i hullet.
+  ctx.strokeStyle="rgba(0,0,0,.82)";
+  ctx.lineWidth=Math.max(2,h.r*.08);
+  ctx.beginPath();
+  ctx.arc(0,h.r*.05,h.r*.79,Math.PI*1.03,Math.PI*1.93);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawCritter(q){
+  ctx.save();ctx.translate(q.x,q.y);
+  // Billehodet er tegnet mot lokal -Y. 90° ekstra rotasjon gjør at hodet peker i bevegelsesretningen.
+  ctx.rotate(q.angle + (q.type==="beetle" ? Math.PI/2 : 0));
+  const s=q.size;
+
+  ctx.fillStyle="rgba(30,18,10,.22)";
+  if(q.type==="beetle"){
+    ctx.beginPath();ctx.ellipse(2,s*.25,s*.52,s*1.02,0,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.beginPath();ctx.ellipse(2,s*.22,s*1.25,s*.34,0,0,Math.PI*2);ctx.fill();
+  }
+
+  if(q.type==="beetle"){
+    // Tre beinpar med vekslende steg – kroppen går fremover, ikke sidelengs.
+    ctx.strokeStyle="rgba(37,24,16,.90)";ctx.lineWidth=Math.max(1.2,s*.095);ctx.lineCap="round";
+    const pairY=[-s*.44,0,s*.44];
+    for(let side of [-1,1]){
+      for(let k=0;k<3;k++){
+        const yy=pairY[k];
+        const phase=q.phase+k*Math.PI+(side<0?0:Math.PI);
+        const stride=Math.sin(phase)*s*.23;
+        const lift=Math.max(0,Math.cos(phase))*s*.08;
+        const hipX=side*s*.37, kneeX=side*s*.70;
+        const footX=side*s*(.94+.06*Math.sin(q.phase+k));
+        const footY=yy+stride;
+        ctx.beginPath();ctx.moveTo(hipX,yy);ctx.lineTo(kneeX,yy+stride*.40-lift);ctx.lineTo(footX,footY);ctx.stroke();
+        ctx.fillStyle="rgba(31,20,13,.88)";ctx.beginPath();ctx.ellipse(footX,footY,s*.11,s*.055,0,0,Math.PI*2);ctx.fill();
+      }
+    }
+
+    const grad=ctx.createRadialGradient(-s*.26,-s*.28,s*.05,0,0,s);
+    grad.addColorStop(0,"#8a6741");grad.addColorStop(.28,"#533a25");grad.addColorStop(.72,"#2f241a");grad.addColorStop(1,"#15110d");
+    ctx.fillStyle=grad;ctx.beginPath();ctx.ellipse(0,0,s*.66,s*.92,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="rgba(214,174,113,.22)";ctx.lineWidth=Math.max(1,s*.052);
+    ctx.beginPath();ctx.moveTo(0,-s*.72);ctx.lineTo(0,s*.68);ctx.stroke();
+    ctx.strokeStyle="rgba(225,195,149,.16)";ctx.lineWidth=Math.max(.8,s*.035);
+    ctx.beginPath();ctx.moveTo(-s*.34,-s*.18);ctx.lineTo(s*.18,-s*.04);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-s*.18,s*.28);ctx.lineTo(s*.28,s*.18);ctx.stroke();
+    ctx.fillStyle="#17120e";ctx.beginPath();ctx.arc(0,-s*.88,s*.34,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#24180f";ctx.lineWidth=Math.max(1,s*.06);
+    ctx.beginPath();ctx.moveTo(-s*.12,-s*1.05);ctx.quadraticCurveTo(-s*.58,-s*1.34,-s*.68,-s*1.56);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(s*.12,-s*1.05);ctx.quadraticCurveTo(s*.58,-s*1.34,s*.68,-s*1.56);ctx.stroke();
+  }else{
+    const segs=10;
+    for(let i=segs-1;i>=0;i--){
+      const px=(i-(segs-1)/2)*s*.28;
+      const py=Math.sin(q.phase+i*.72)*s*.13;
+      const rr=s*(.30+(i===0?.06:0));
+      ctx.strokeStyle="rgba(45,27,14,.88)";ctx.lineWidth=Math.max(1,s*.065);
+      for(let side of [-1,1]){
+        const step=Math.sin(q.phase+i*.9+(side<0?0:Math.PI))*s*.11;
+        ctx.beginPath();ctx.moveTo(px,py+side*rr*.35);ctx.lineTo(px+step,py+side*s*.63);ctx.stroke();
+      }
+      const g=ctx.createRadialGradient(px-rr*.25,py-rr*.25,rr*.08,px,py,rr);
+      g.addColorStop(0,"#a26d3d");g.addColorStop(.55,"#664223");g.addColorStop(1,"#2f2117");
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(px,py,rr,0,Math.PI*2);ctx.fill();
+    }
+    ctx.strokeStyle="#352115";ctx.lineWidth=Math.max(1,s*.06);
+    ctx.beginPath();ctx.moveTo(-s*1.38,0);ctx.quadraticCurveTo(-s*1.65,-s*.42,-s*1.78,-s*.60);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-s*1.38,0);ctx.quadraticCurveTo(-s*1.65,s*.42,-s*1.78,s*.60);ctx.stroke();
+  }
+
+  if(q.scared>0){ctx.strokeStyle="rgba(255,240,185,.68)";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,s*1.55,0,Math.PI*2);ctx.stroke();}
+  ctx.restore();
+}
+
+function drawCuteAnimalFallback(a){
+  if(a.holeScale<=.035 && a.holeState==="hide") return;
+
+  ctx.save();
+  ctx.translate(a.x,a.y);
+
+  // Dyrene er tegnet med hodet mot lokal -X.
+  // + PI gjør at hodet peker i faktisk bevegelsesretning.
+  ctx.rotate(a.angle+Math.PI);
+
+  const s=a.size;
+  const stumbleRot=a.stumble>0 ? Math.sin(a.phase*2.8)*.26*a.bumpSide : 0;
+  ctx.rotate(stumbleRot);
+  ctx.scale(a.holeScale,a.holeScale);
+
+  // Shadow.
+  ctx.fillStyle="rgba(25,17,11,.24)";
+  ctx.beginPath();
+  ctx.ellipse(2,s*.31,s*1.07,s*.40,0,0,Math.PI*2);
+  ctx.fill();
+
+  if(a.type==="squirrel"){
+    // Fire tydelige bein med føtter. Beinparene går motsatt fase.
+    ctx.strokeStyle="#58351f";
+    ctx.lineWidth=Math.max(2.2,s*.075);
+    ctx.lineCap="round";
+
+    const legX=[-s*.27,s*.28];
+    for(let side of [-1,1]){
+      for(let k=0;k<2;k++){
+        const x=legX[k];
+        const legPhase=a.phase+k*Math.PI+(side<0?0:Math.PI);
+        const stride=Math.sin(legPhase)*s*.22;
+        const lift=Math.max(0,Math.cos(legPhase))*s*.10;
+
+        const kneeX=x+stride*.18;
+        const kneeY=side*s*.49-lift;
+        const footX=x+stride;
+        const footY=side*s*.72;
+
+        ctx.beginPath();
+        ctx.moveTo(x,side*s*.20);
+        ctx.lineTo(kneeX,kneeY);
+        ctx.lineTo(footX,footY);
+        ctx.stroke();
+
+        ctx.fillStyle="#43281a";
+        ctx.beginPath();
+        ctx.ellipse(footX,footY,s*.12,s*.055,0,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    // Big fluffy tail.
+    ctx.save();
+    ctx.translate(s*.56,s*.05);
+    ctx.rotate(-.55+Math.sin(a.phase*.38)*.18);
+    const tg=ctx.createRadialGradient(-s*.05,-s*.20,s*.08,s*.20,0,s*.95);
+    tg.addColorStop(0,"#e0a762");
+    tg.addColorStop(.47,"#a76839");
+    tg.addColorStop(1,"#5b3823");
+    ctx.fillStyle=tg;
+    ctx.beginPath();
+    ctx.ellipse(s*.43,-s*.26,s*.64,s*.98,-.45,0,Math.PI*2);
+    ctx.fill();
+
+    // A few tail streaks.
+    ctx.strokeStyle="rgba(255,218,166,.18)";
+    ctx.lineWidth=Math.max(1.2,s*.035);
+    for(let k=0;k<4;k++){
+      ctx.beginPath();
+      ctx.arc(s*.38,-s*.26,s*(.27+k*.07),3.7,5.6);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Body.
+    const bg=ctx.createRadialGradient(-s*.25,-s*.23,s*.08,0,0,s);
+    bg.addColorStop(0,"#dba568");
+    bg.addColorStop(.55,"#9f673d");
+    bg.addColorStop(1,"#5b3722");
+    ctx.fillStyle=bg;
+    ctx.beginPath();
+    ctx.ellipse(0,0,s*.65,s*.40,0,0,Math.PI*2);
+    ctx.fill();
+
+    // Head.
+    ctx.fillStyle="#a97043";
+    ctx.beginPath();
+    ctx.arc(-s*.57,-s*.05,s*.35,0,Math.PI*2);
+    ctx.fill();
+
+    // Ears.
+    ctx.fillStyle="#784a2c";
+    ctx.beginPath();
+    ctx.moveTo(-s*.76,-s*.23);
+    ctx.lineTo(-s*.70,-s*.64);
+    ctx.lineTo(-s*.53,-s*.28);
+    ctx.closePath();ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-s*.47,-s*.28);
+    ctx.lineTo(-s*.32,-s*.60);
+    ctx.lineTo(-s*.27,-s*.20);
+    ctx.closePath();ctx.fill();
+
+    // Eye, nose and cheek.
+    ctx.fillStyle="#111";
+    ctx.beginPath();ctx.arc(-s*.70,-s*.09,s*.058,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(-s*.716,-s*.108,s*.019,0,Math.PI*2);ctx.fill();
+
+    ctx.fillStyle="#342117";
+    ctx.beginPath();ctx.arc(-s*.87,-s*.01,s*.048,0,Math.PI*2);ctx.fill();
+
+    ctx.fillStyle="rgba(255,205,175,.28)";
+    ctx.beginPath();ctx.arc(-s*.58,s*.09,s*.095,0,Math.PI*2);ctx.fill();
+
+  }else{
+    // Fire tydelige pinnsvinbein + små føtter.
+    ctx.strokeStyle="#664532";
+    ctx.lineWidth=Math.max(2.2,s*.072);
+    ctx.lineCap="round";
+
+    const legX=[-s*.23,s*.31];
+    for(let side of [-1,1]){
+      for(let k=0;k<2;k++){
+        const legPhase=a.phase+k*Math.PI+(side<0?0:Math.PI);
+        const stride=Math.sin(legPhase)*s*.15;
+        const x=legX[k];
+
+        ctx.beginPath();
+        ctx.moveTo(x,side*s*.25);
+        ctx.lineTo(x+stride*.24,side*s*.48);
+        ctx.lineTo(x+stride,side*s*.62);
+        ctx.stroke();
+
+        ctx.fillStyle="#4c3428";
+        ctx.beginPath();
+        ctx.ellipse(x+stride,side*s*.62,s*.105,s*.050,0,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    // Spiny back.
+    ctx.fillStyle="#574536";
+    ctx.beginPath();
+    ctx.ellipse(s*.15,0,s*.73,s*.49,0,0,Math.PI*2);
+    ctx.fill();
+
+    // More visible spikes.
+    ctx.strokeStyle="#92775d";
+    ctx.lineWidth=Math.max(1.4,s*.038);
+    for(let k=0;k<26;k++){
+      const ang=-2.60+(k/25)*5.20;
+      const x=s*.14+Math.cos(ang)*s*.59;
+      const y=Math.sin(ang)*s*.37;
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(x+Math.cos(ang)*s*.21,y+Math.sin(ang)*s*.21);
+      ctx.stroke();
+    }
+
+    // Face / snout.
+    ctx.fillStyle="#b28b6d";
+    ctx.beginPath();
+    ctx.ellipse(-s*.49,0,s*.43,s*.29,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-s*.65,-s*.13);
+    ctx.lineTo(-s*.97,0);
+    ctx.lineTo(-s*.65,s*.14);
+    ctx.closePath();ctx.fill();
+
+    ctx.fillStyle="#17130f";
+    ctx.beginPath();ctx.arc(-s*.96,0,s*.050,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(-s*.58,-s*.075,s*.048,0,Math.PI*2);ctx.fill();
+
+    ctx.fillStyle="#89674f";
+    ctx.beginPath();ctx.arc(-s*.31,-s*.21,s*.105,0,Math.PI*2);ctx.fill();
+  }
+
+  if(a.startled>0){
+    ctx.strokeStyle="rgba(255,244,190,.72)";
+    ctx.lineWidth=Math.max(2,s*.035);
+    ctx.beginPath();
+    ctx.arc(0,0,s*1.18,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawScorpion(s){
+  ctx.save();
+  ctx.translate(s.x,s.y);
+  ctx.rotate(s.angle);
+  const z=s.size;
+
+  // Kontaktsskygge.
+  ctx.fillStyle="rgba(25,16,10,.24)";
+  ctx.beginPath();ctx.ellipse(2,z*.18,z*1.35,z*.42,0,0,Math.PI*2);ctx.fill();
+
+  // Bein – løpende rytme.
+  ctx.strokeStyle="#2a1b12";
+  ctx.lineWidth=Math.max(1.1,z*.07);
+  ctx.lineCap="round";
+  for(let side of [-1,1]){
+    for(let k=0;k<4;k++){
+      const x=(-.48+k*.31)*z;
+      const swing=Math.sin(s.phase+k*1.15+(side<0?0:Math.PI))*z*.22;
+      ctx.beginPath();
+      ctx.moveTo(x,side*z*.22);
+      ctx.lineTo(x+swing*.25,side*z*.64);
+      ctx.lineTo(x+swing,side*z*.92);
+      ctx.stroke();
+    }
+  }
+
+  // Kropp.
+  let g=ctx.createRadialGradient(-z*.28,-z*.22,z*.05,0,0,z);
+  g.addColorStop(0,"#7c5a37");g.addColorStop(.45,"#4c3522");g.addColorStop(1,"#211710");
+  ctx.fillStyle=g;
+  ctx.beginPath();ctx.ellipse(0,0,z*.55,z*.34,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(z*.48,0,z*.38,z*.27,0,0,Math.PI*2);ctx.fill();
+
+  // Klør foran.
+  ctx.strokeStyle="#352317";ctx.lineWidth=Math.max(2,z*.13);
+  for(let side of [-1,1]){
+    ctx.beginPath();ctx.moveTo(-z*.42,side*z*.12);ctx.quadraticCurveTo(-z*.82,side*z*.46,-z*1.05,side*z*.57);ctx.stroke();
+    ctx.lineWidth=Math.max(1.3,z*.08);
+    ctx.beginPath();ctx.arc(-z*1.10,side*z*.58,z*.22,side>0?2.7:-.5,side>0?4.8:1.65);ctx.stroke();
+    ctx.lineWidth=Math.max(2,z*.13);
+  }
+
+  // Hale med tre ledd og brodd.
+  ctx.lineWidth=Math.max(2.2,z*.15);ctx.strokeStyle="#3b281b";
+  ctx.beginPath();ctx.moveTo(z*.72,0);
+  ctx.quadraticCurveTo(z*1.08,-z*.18,z*1.15,-z*.56);
+  ctx.quadraticCurveTo(z*1.20,-z*.96,z*.93,-z*1.16);
+  ctx.stroke();
+  ctx.fillStyle="#241710";
+  ctx.beginPath();
+  ctx.moveTo(z*.91,-z*1.18);ctx.lineTo(z*1.14,-z*1.06);ctx.lineTo(z*.98,-z*.91);ctx.closePath();ctx.fill();
+
+  ctx.restore();
+}
+
+function drawRockFallback(r){
+  ctx.save();ctx.translate(r.x,r.y);ctx.rotate(r.rot);
+  const sy=r.squash||.86;
+
+  // Lav, myk skygge slik steinen ser tung ut og ligger i jorda.
+  ctx.fillStyle="rgba(25,15,9,.32)";
+  ctx.beginPath();ctx.ellipse(r.r*.16,r.r*.53,r.r*1.02,r.r*.42*sy,.05,0,Math.PI*2);ctx.fill();
+
+  // Ujevn, avrundet omriss med individuelle "avslag".
+  const n=11;
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+    const a=i/n*Math.PI*2;
+    const chip=(r.chips&&r.chips[i%r.chips.length])||1;
+    const rr=r.r*chip*(.93+.045*Math.sin(i*2.17+r.rot));
+    const x=Math.cos(a)*rr, y=Math.sin(a)*rr*sy;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+
+  const warm=r.warm||.5;
+  const hi=warm>.5?"#b9a17e":"#b4ad9a";
+  const mid=warm>.5?"#7c674d":"#716c61";
+  const low=warm>.5?"#493a2e":"#403c36";
+  const grad=ctx.createRadialGradient(-r.r*.38,-r.r*.44*sy,r.r*.05,0,0,r.r*1.05);
+  grad.addColorStop(0,hi);grad.addColorStop(.34,mid);grad.addColorStop(.76,low);grad.addColorStop(1,"#28221d");
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.strokeStyle="rgba(28,21,17,.70)";ctx.lineWidth=Math.max(1.5,r.r*.045);ctx.stroke();
+
+  // Matte slitasjeflekker / lav.
+  for(let i=0;i<5;i++){
+    const a=prand(r.crackSeed+i*3.3)*Math.PI*2;
+    const rr=r.r*(.18+prand(r.crackSeed+i*5.7)*.45);
+    const x=Math.cos(a)*rr,y=Math.sin(a)*rr*sy;
+    ctx.fillStyle=i%2?"rgba(198,184,145,.11)":"rgba(44,51,31,.10)";
+    ctx.beginPath();ctx.ellipse(x,y,r.r*(.07+prand(r.crackSeed+i)*.10),r.r*(.035+prand(r.crackSeed+i+1)*.055),a,0,Math.PI*2);ctx.fill();
+  }
+
+  // Flere uregelmessige sprekker.
+  ctx.strokeStyle="rgba(31,26,22,.50)";ctx.lineCap="round";
+  for(let c=0;c<3;c++){
+    const seed=r.crackSeed+c*17;
+    let x=(prand(seed)-.5)*r.r*.55;
+    let y=(prand(seed+1)-.5)*r.r*.42*sy;
+    ctx.lineWidth=Math.max(.8,r.r*(.018+prand(seed+2)*.018));
+    ctx.beginPath();ctx.moveTo(x,y);
+    for(let j=0;j<3;j++){
+      x+=(prand(seed+4+j)-.45)*r.r*.26;
+      y+=(prand(seed+8+j)-.40)*r.r*.23*sy;
+      ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+
+  // Litt innsynket jord ved foten.
+  ctx.strokeStyle="rgba(64,41,23,.24)";ctx.lineWidth=2;
+  ctx.beginPath();ctx.ellipse(0,r.r*.24*sy,r.r*.86,r.r*.53*sy,0,.14,Math.PI-.14);ctx.stroke();
+  ctx.restore();
+}
+
+function drawBallFallback(b,ball){
+  if(ball.done){
+    // liten glød i riktig hull, men selve kula er "nedi".
+    ctx.save();ctx.globalAlpha=.6;ctx.fillStyle=ball.color;ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r*.30,0,Math.PI*2);ctx.fill();ctx.restore();
+    return;
+  }
+  const fallScale=ball.fall>0?clamp(1-ball.fall*1.45,.12,1):1;
+  const stuckScale=ball.stuck ? .78 : 1;
+  const scale=fallScale*stuckScale;
+  const h=terrainH(b,ball.x,ball.y);
+  const lift=clamp(h*5,-3,6);
+
+  ctx.save();
+  ctx.translate(ball.x,ball.y-lift);
+  ctx.scale(scale,scale);
+  if(!ball.active) ctx.globalAlpha=.48;
+
+  if(ball.active && !ball.done){
+    const pulse=1.18+Math.sin(performance.now()*.006)*.10;
+    ctx.strokeStyle=hexAlpha(ball.color,.50);ctx.lineWidth=Math.max(3,ball.r*.075);
+    ctx.beginPath();ctx.arc(0,0,ball.r*pulse,0,Math.PI*2);ctx.stroke();
+  }
+
+  // Mykere kontaktsskygge på jordbunnen.
+  ctx.fillStyle="rgba(24,14,8,.38)";
+  ctx.beginPath();ctx.ellipse(5,ball.r*.60,ball.r*.87,ball.r*.31,0,0,Math.PI*2);ctx.fill();
+
+  if(ball.glow>.03){
+    const oldAlpha=ctx.globalAlpha;
+    ctx.globalAlpha=oldAlpha*ball.glow*.34;
+    ctx.fillStyle=ball.color;ctx.beginPath();ctx.arc(0,0,ball.r*1.40,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=oldAlpha;
+  }
+
+  // Hovedmateriale: mindre "plastblankt", mer tung brukt boccia-/klinkekule.
+  const grad=ctx.createRadialGradient(-ball.r*.36,-ball.r*.43,ball.r*.07,0,0,ball.r);
+  grad.addColorStop(0,lighten(ball.color,.60));
+  grad.addColorStop(.13,lighten(ball.color,.30));
+  grad.addColorStop(.52,ball.color);
+  grad.addColorStop(.82,darken(ball.color,.22));
+  grad.addColorStop(1,darken(ball.color,.52));
+  ctx.fillStyle=grad;ctx.beginPath();ctx.arc(0,0,ball.r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="rgba(35,22,14,.55)";ctx.lineWidth=Math.max(2,ball.r*.065);ctx.stroke();
+
+  // Slitasjemerkene roterer sammen med kula.
+  ctx.save();
+  ctx.beginPath();ctx.arc(0,0,ball.r*.94,0,Math.PI*2);ctx.clip();
+  ctx.rotate(ball.spin);
+
+  for(const d of (ball.wear?.dirt||[])){
+    ctx.save();ctx.translate(d.x*ball.r,d.y*ball.r);ctx.rotate(d.rot);
+    ctx.fillStyle=`rgba(74,50,27,${d.alpha})`;
+    ctx.beginPath();ctx.ellipse(0,0,d.rx*ball.r,d.ry*ball.r,0,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  for(const s of (ball.wear?.scratches||[])){
+    const x=s.x*ball.r,y=s.y*ball.r,l=s.len*ball.r;
+    const dx=Math.cos(s.ang)*l*.5,dy=Math.sin(s.ang)*l*.5;
+    ctx.lineCap="round";
+    ctx.lineWidth=Math.max(.7,s.width*ball.r);
+    ctx.strokeStyle=`rgba(248,233,205,${s.alpha})`;
+    ctx.beginPath();ctx.moveTo(x-dx,y-dy);ctx.lineTo(x+dx,y+dy);ctx.stroke();
+    ctx.lineWidth=Math.max(.5,s.width*ball.r*.55);
+    ctx.strokeStyle=`rgba(58,35,20,${s.alpha*.72})`;
+    ctx.beginPath();ctx.moveTo(x-dx,y-dy+1.2);ctx.lineTo(x+dx,y+dy+1.2);ctx.stroke();
+  }
+
+  // Boccia-lignende søm/struktur, også litt slitt.
+  ctx.strokeStyle="rgba(244,231,204,.20)";ctx.lineWidth=Math.max(1.1,ball.r*.040);
+  ctx.beginPath();ctx.ellipse(0,0,ball.r*.82,ball.r*.32,.25,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(0,0,ball.r*.30,ball.r*.84,-.35,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+
+  // Smuss langs nederste kant gir inntrykk av kontakt med bakken.
+  const grime=ctx.createLinearGradient(0,ball.r*.15,0,ball.r);
+  grime.addColorStop(0,"rgba(55,35,19,0)");
+  grime.addColorStop(1,"rgba(55,35,19,.20)");
+  ctx.fillStyle=grime;ctx.beginPath();ctx.arc(0,0,ball.r*.96,0,Math.PI*2);ctx.fill();
+
+  // Liten slitt høylys-flekk.
+  ctx.fillStyle="rgba(255,250,231,.22)";
+  ctx.beginPath();ctx.ellipse(-ball.r*.32,-ball.r*.40,ball.r*.15,ball.r*.08,-.55,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function drawParticles(){
+  for(const p of particles){
+    if(p.age<0) continue;
+    const t=1-p.age/p.life;
+    ctx.save();
+    ctx.globalAlpha=clamp(t,0,1);
+    ctx.translate(p.x,p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle=p.color;
+
+    if(p.type==="ring"){
+      ctx.strokeStyle=hexAlpha(p.color,clamp(t*.78,0,1));
+      ctx.lineWidth=Math.max(1.2,5*t);
+      ctx.beginPath();ctx.arc(0,0,p.size,0,Math.PI*2);ctx.stroke();
+    }else if(p.type==="goal"){
+      ctx.fillRect(-p.size*.35,-p.size,p.size*.7,p.size*2);
+    }else if(p.type==="confetti"){
+      if(p.shape==="circle"){
+        ctx.beginPath();ctx.arc(0,0,p.size*.48,0,Math.PI*2);ctx.fill();
+      }else{
+        ctx.fillRect(-p.size*.24,-p.size,p.size*.48,p.size*2);
+      }
+    }else if(p.type==="spark"){
+      ctx.shadowBlur=8;ctx.shadowColor=p.color;
+      ctx.fillRect(-p.size*.13,-p.size,p.size*.26,p.size*2.2);
+    }else if(p.type==="splat"){
+      ctx.beginPath();ctx.ellipse(0,0,p.size*.85,p.size*.35,p.rot,0,Math.PI*2);ctx.fill();
+    }else{
+      ctx.beginPath();ctx.arc(0,0,p.size*.6,0,Math.PI*2);ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+function hexAlpha(hex,a){
+  const h=hex.replace("#","");const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function lighten(hex,t){
+  const h=hex.replace("#","");let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  r=Math.round(lerp(r,255,t));g=Math.round(lerp(g,255,t));b=Math.round(lerp(b,255,t));
+  return `rgb(${r},${g},${b})`;
+}
+function darken(hex,t){
+  const h=hex.replace("#","");let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  r=Math.round(r*(1-t));g=Math.round(g*(1-t));b=Math.round(b*(1-t));
+  return `rgb(${r},${g},${b})`;
+}
+function roundRect(c,x,y,w,h,r){
+  r=Math.min(r,w/2,h/2);
+  c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();
+}
+
+// Photographic materials are loaded once; the height-field shading is cached.
+const natureImages={};
+for(const name of ['ground','rock','leaf','fern','mossrock']){
+  const im=new Image();natureImages[name]=im;im.onload=()=>{if(name==='ground'||name==='fern'||name==='leaf')boards.forEach(renderTerrain)};im.src='assets/'+name+(name==='ground'?'.jpg':'.png');
+}
+function renderTerrain(b){
+  const im=natureImages.ground;if(!im?.complete||!im.naturalWidth){renderTerrainFallback(b);return;}
+  const c=document.createElement('canvas'),density=dpr;c.width=Math.ceil(b.w*density);c.height=Math.ceil(b.h*density);const g=c.getContext('2d');g.scale(density,density);
+  // Crop a single large photographic material, without repeating tile seams.
+  const factor=Math.max(b.w/im.width,b.h/im.height);const iw=b.w/factor,ih=b.h/factor;
+  g.drawImage(im,(im.width-iw)/2,(im.height-ih)/2,iw,ih,0,0,b.w,b.h);
+  // Preserve a visible connection between the original height field and physics.
+  const shade=document.createElement('canvas');shade.width=Math.ceil(b.w/5);shade.height=Math.ceil(b.h/5);const sg=shade.getContext('2d'),px=sg.createImageData(shade.width,shade.height);
+  for(let y=0;y<shade.height;y++)for(let x=0;x<shade.width;x++){
+    const wx=b.x+x/shade.width*b.w,wy=b.y+y/shade.height*b.h,e=5;
+    const slope=(terrainH(b,wx+e,wy)-terrainH(b,wx-e,wy))*.7+(terrainH(b,wx,wy+e)-terrainH(b,wx,wy-e))*.8;
+    const k=(y*shade.width+x)*4;const light=slope<0;px.data[k]=light?255:25;px.data[k+1]=light?234:18;px.data[k+2]=light?194:12;px.data[k+3]=Math.min(24,Math.abs(slope)*65);
+  }sg.putImageData(px,0,0);g.drawImage(shade,0,0,b.w,b.h);
+  const vignette=g.createRadialGradient(b.w*.45,b.h*.38,b.w*.15,b.w*.5,b.h*.5,Math.max(b.w,b.h)*.8);vignette.addColorStop(0,'#0000');vignette.addColorStop(1,'#231a0828');g.fillStyle=vignette;g.fillRect(0,0,b.w,b.h);
+  b.terrainCanvas=c;
+}
+function drawCuteAnimal(a){
+  const im=natureImages[a.type];if(!im?.naturalWidth){drawCuteAnimalFallback(a);return;}
+  if(a.holeScale<=.035&&a.holeState==='hide')return;
+  const s=a.size,step=Math.sin(a.phase*2)*.025;
+  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.angle+(a.stumble>0?Math.sin(a.phase*2.8)*.18:0));ctx.scale(a.holeScale,a.holeScale);
+  ctx.fillStyle='#100d0990';ctx.beginPath();ctx.ellipse(3,s*.28,s*.88,s*.36,0,0,Math.PI*2);ctx.fill();
+  const width=s*2.45,height=width*im.height/im.width;ctx.scale(1+step,1-step);ctx.drawImage(im,-width/2,-height/2,width,height);ctx.restore();
+}
+function drawRock(r){
+  const im=natureImages[r.warm>.55?'mossrock':'rock'];if(!im?.naturalWidth){drawRockFallback(r);return;}
+  ctx.save();ctx.translate(r.x,r.y);ctx.rotate(r.rot);ctx.fillStyle='#150e0bb0';ctx.beginPath();ctx.ellipse(4,6,r.r*1.06,r.r*.85,0,0,Math.PI*2);ctx.fill();
+  ctx.drawImage(im,-r.r,-r.r,r.r*2,r.r*2);ctx.restore();
+}
+let forestAudio=null,rollingGain=null,rollingFilter=null,gameAudioPaused=false;
+function ensureForestAudio(){
+  if(!forestAudio){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;forestAudio=new AC();const buffer=forestAudio.createBuffer(1,forestAudio.sampleRate*2,forestAudio.sampleRate),d=buffer.getChannelData(0);let n=0;for(let i=0;i<d.length;i++){n=.82*n+.18*(Math.random()*2-1);d[i]=n}const source=forestAudio.createBufferSource();source.buffer=buffer;source.loop=true;rollingFilter=forestAudio.createBiquadFilter();rollingFilter.type='bandpass';rollingFilter.frequency.value=600;rollingFilter.Q.value=.65;rollingGain=forestAudio.createGain();rollingGain.gain.value=0;source.connect(rollingFilter);rollingFilter.connect(rollingGain);rollingGain.connect(forestAudio.destination);source.start();}
+  if(forestAudio.state==='suspended')forestAudio.resume();
+}
+function updateRollingSound(){if(!forestAudio)return;let speed=0;if(running&&!muted&&!document.hidden)for(const b of boards)for(const ball of b.balls)if(ball.active&&!ball.done&&ball.dragId===null)speed=Math.max(speed,Math.hypot(ball.vx||0,ball.vy||0));rollingGain.gain.setTargetAtTime(Math.min(.12,speed/6000),forestAudio.currentTime,.08);rollingFilter.frequency.setTargetAtTime(180+Math.min(speed,900)*1.2,forestAudio.currentTime,.1);}
+window.addEventListener('pointerdown',ensureForestAudio,{once:true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){gameAudioPaused=running;running=false;if(forestAudio)forestAudio.suspend();}else if(gameAudioPaused){running=true;lastT=performance.now();gameAudioPaused=false;}});
+function drawBall(b,ball){
+  if(ball.done){ctx.save();ctx.fillStyle=hexAlpha(ball.color,.7);ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r*.25,0,Math.PI*2);ctx.fill();ctx.restore();return;}
+  const r=ball.r,scale=(ball.fall>0?clamp(1-ball.fall*1.45,.12,1):1)*(ball.stuck?.78:1),lift=clamp(terrainH(b,ball.x,ball.y)*5,-3,6);
+  ctx.save();ctx.translate(ball.x,ball.y-lift);ctx.scale(scale,scale);if(!ball.active)ctx.globalAlpha=.6;
+  const shadow=ctx.createRadialGradient(r*.3,r*.6,1,r*.3,r*.6,r*1.4);shadow.addColorStop(0,'#100b09ae');shadow.addColorStop(1,'#100b0900');ctx.fillStyle=shadow;ctx.beginPath();ctx.ellipse(r*.25,r*.6,r*1.4,r*.72,0,0,Math.PI*2);ctx.fill();
+  if(ball.active){ctx.strokeStyle=hexAlpha(ball.color,.65);ctx.lineWidth=1.5;ctx.setLineDash([3,5]);ctx.beginPath();ctx.arc(0,0,r*1.26,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
+  ctx.save();ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.clip();
+  const glass=ctx.createRadialGradient(-r*.3,-r*.4,r*.03,r*.1,r*.1,r*1.2);glass.addColorStop(0,'#fff8e4');glass.addColorStop(.16,lighten(ball.color,.68));glass.addColorStop(.45,hexAlpha(ball.color,.8));glass.addColorStop(.78,darken(ball.color,.38));glass.addColorStop(1,'#111a13');ctx.fillStyle=glass;ctx.fillRect(-r,-r,r*2,r*2);
+  ctx.save();ctx.rotate(ball.spin*.6);for(let i=0;i<3;i++){ctx.rotate(Math.PI*2/3);ctx.beginPath();ctx.moveTo(-r,-r*.12);ctx.bezierCurveTo(-r*.4,-r*.86,r*.05,r*.6,r,r*.1);ctx.bezierCurveTo(r*.1,r*.27,-r*.5,-r*.24,-r,-r*.12);ctx.fillStyle=i%2?lighten(ball.color,.58):darken(ball.color,.1);ctx.globalAlpha*=.58;ctx.fill();}ctx.restore();
+  // Reflections of a bright sky and dark branches across polished glass.
+  ctx.strokeStyle='#f9fff39c';ctx.lineWidth=r*.1;ctx.beginPath();ctx.arc(-r*.04,-r*.04,r*.84,3.6,5.15);ctx.stroke();
+  ctx.fillStyle='#ffffffed';ctx.beginPath();ctx.ellipse(-r*.32,-r*.48,r*.23,r*.105,-.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffffff66';ctx.beginPath();ctx.ellipse(r*.35,r*.58,r*.27,r*.06,-.6,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#14251c66';ctx.lineWidth=Math.max(1,r*.035);for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(r*(.1+i*.15),-r);ctx.quadraticCurveTo(r*(.2+i*.14),-r*.65,r*(.45+i*.12),-r*.4);ctx.stroke()}
+  ctx.restore();ctx.strokeStyle='#d4e8d591';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,r-.5,0,Math.PI*2);ctx.stroke();ctx.restore();
+}
+// Actual photographic glass, replacing the earlier drawn material.
+const marblePhotos=Array.from({length:7},(_,i)=>{const im=new Image();im.src='assets/marble'+i+'.png';return im});
+function drawPhotographicBall(b,ball){
+  const im=marblePhotos[ball.id];if(!im?.naturalWidth){drawBall(b,ball);return;}
+  if(ball.done){ctx.save();ctx.globalAlpha=.65;ctx.drawImage(im,ball.x-ball.r*.25,ball.y-ball.r*.25,ball.r*.5,ball.r*.5);ctx.restore();return;}
+  const r=ball.r,scale=(ball.fall>0?clamp(1-ball.fall*1.45,.12,1):1)*(ball.stuck?.78:1);
+  ctx.save();ctx.translate(ball.x,ball.y);ctx.scale(scale,scale);
+  const shadow=ctx.createRadialGradient(r*.22,r*.36,0,r*.22,r*.36,r*1.3);shadow.addColorStop(0,'rgba(13,9,5,.70)');shadow.addColorStop(.48,'rgba(13,9,5,.38)');shadow.addColorStop(1,'rgba(13,9,5,0)');ctx.save();ctx.scale(1,.68);ctx.fillStyle=shadow;ctx.fillRect(-r*1.3,-r,r*3,r*3);ctx.restore();
+  ctx.fillStyle='rgba(12,9,6,.50)';ctx.beginPath();ctx.ellipse(1,r*.65,r*.65,r*.26,0,0,Math.PI*2);ctx.fill();
+  // Refraction projects a soft colored caustic on the earth beside the ball.
+  ctx.save();ctx.globalCompositeOperation='screen';const caustic=ctx.createRadialGradient(r*.5,r*.55,0,r*.5,r*.55,r*.6);caustic.addColorStop(0,hexAlpha(ball.color,.18));caustic.addColorStop(1,hexAlpha(ball.color,0));ctx.fillStyle=caustic;ctx.fillRect(0,0,r*1.4,r*1.4);ctx.restore();
+  ctx.drawImage(im,-r,-r,r*2,r*2);
+  if(ball.active&&ball.dragId!==null){ctx.strokeStyle='#fff5c588';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r*1.12,0,Math.PI*2);ctx.stroke()}
+  ctx.restore();
+}
+function drawNaturalHole(h,trap){
+
+  ctx.save();ctx.translate(h.x,h.y);const r=h.r;
+  ctx.beginPath();ctx.arc(0,0,r*1.055,0,Math.PI*2);ctx.fillStyle='#382d20';ctx.fill();
+  ctx.strokeStyle='#756044';ctx.lineWidth=1;ctx.stroke();
+  const wall=ctx.createLinearGradient(0,-r,0,r);wall.addColorStop(0,'#090703');wall.addColorStop(.65,'#1d140b');wall.addColorStop(1,'#725236');
+  ctx.beginPath();ctx.arc(0,0,r*.985,0,Math.PI*2);ctx.fillStyle=wall;ctx.fill();
+  const depth=ctx.createRadialGradient(-r*.1,-r*.15,r*.3,0,0,r);depth.addColorStop(0,'#020301');depth.addColorStop(.77,'#050503');depth.addColorStop(1,'#08060400');ctx.fillStyle=depth;ctx.fill();
+  if(!trap){ctx.beginPath();ctx.arc(0,0,r*.99,0,Math.PI*2);ctx.strokeStyle=hexAlpha(h.color,h.filled?.25:.65);ctx.lineWidth=2;ctx.stroke();}
+  for(let i=0;i<28;i++){const seed=(h.id||0)*17+i*8.71,a=i/28*Math.PI*2,rr=r*(.93+prand(seed)*.07);ctx.fillStyle=i>14?'rgba(147,111,69,.35)':'rgba(17,12,7,.7)';ctx.beginPath();ctx.ellipse(Math.cos(a)*rr,Math.sin(a)*rr,1+prand(seed+8)*r*.035,.8+prand(seed+2)*r*.025,a,0,Math.PI*2);ctx.fill()}
+  ctx.restore();
+}
+
+function frame(t){
+  const dt=Math.min(.033,(t-lastT)/1000||.016);lastT=t;
+  if(running) update(dt);
+  else updateFireworks(dt);
+  draw();
+  drawFireworks();
+  updateRollingSound();
+  requestAnimationFrame(frame);
+}
+try{const saved=JSON.parse(localStorage.getItem('kulejungelNatur')||'null');if(saved){for(let i=0;i<2;i++){document.getElementById('name'+(i+1)).value=saved.names[i];document.getElementById('diff'+(i+1)).value=saved.diffs[i]}document.querySelector('[data-players="'+saved.playerCount+'"]').click();document.getElementById('roundMode').value=saved.roundMode;document.getElementById('scoreTarget').value=saved.score;document.getElementById('timeTarget').value=saved.time;updateRoundControls()}}catch{}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

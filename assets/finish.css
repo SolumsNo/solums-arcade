@@ -1,0 +1,31 @@
+/* Materials retain the original layout, hit areas and contrast. */
+body:has(.home-screen){background:linear-gradient(110deg,#150c07aa,#442a1222 45%,#100b08aa),url('wood.webp') center/900px;}
+.home-screen{background:radial-gradient(ellipse at 36% 15%,#f4c87322,transparent 65%),linear-gradient(#130c0644,#130c0688),url('wood.webp') center/1100px!important;}
+.desk{background:radial-gradient(ellipse at 32% 12%,#ffd98829,transparent 65%),linear-gradient(90deg,#110a0760,transparent 30% 75%,#110a0760),url('wood.webp') center/1000px!important;}
+.paper{background-color:#f4e9d0!important;background-image:url('paper.svg'),linear-gradient(97deg,#dac9a5,#fff7e1 7%,#f5ebd1 92%,#d9c9a5)!important;box-shadow:0 3px 5px #190d0755,0 20px 35px #140c0a55,inset 1px 0 #fff9e9!important;}
+.typewriter{background-image:url('paper.svg'),radial-gradient(ellipse at 38% 0%,#70766a,#343b34 42%,#141b17 90%)!important;box-shadow:inset 0 2px 2px #a9b5a577,inset 0 -10px 18px #020a08aa,0 15px 18px #08070599!important;}
+.key{box-shadow:0 5px 0 #121815,0 7px 6px #0009,inset 0 1px 2px #fff9!important;transition:transform 90ms,box-shadow 90ms;}
+.key:active,.key.pressed{transform:translateY(4px);box-shadow:0 1px 0 #121815,0 3px 3px #0008,inset 0 1px 2px #fff7!important;}
+.toolbar{box-shadow:0 5px 20px #090c0b66,inset 0 1px #ffffff14;}
+.menu-screen:has(#startBtn){background-color:#081723;}
+#menuScreen .hero{background-image:linear-gradient(0deg,#08171cc9,#08171c11),url('sea.webp');background-size:cover;background-position:center;}
+.game:focus-visible,button:focus-visible{outline:3px solid #ffe5a1;outline-offset:4px;}
+@media print{.desk,.paper{background:white!important;box-shadow:none!important;}}
+@media(prefers-reduced-motion:reduce){.key{transition:none;}}
+
+/* Arcade launch cards show the actual materials used inside each game. */
+.game{min-height:285px;padding-top:30px;}
+.game--panic{background:linear-gradient(90deg,#081708ee 12%,#08170875 70%,#08170822),url('grass.webp') center/cover;}
+.game--writing{background:linear-gradient(90deg,#20150eef 10%,#20150e88 72%,#20150e33),url('wood.webp') center/cover;}
+.game--pirate{background:linear-gradient(90deg,#061425ee 4%,#06142588 67%,#06142511),url('sea.webp') center/cover;}
+.game--pong{background:linear-gradient(90deg,#08252fe8,#103b4aa0),repeating-linear-gradient(0deg,#397485 0 1px,#255a69 1px 4px);}
+.game p{color:#e1e9e2;max-width:340px;}
+.game .icon{background:#081720a8;box-shadow:0 5px 20px #0003;}
+.game .play{color:#fff3d4;}
+/* Keep the rotated scores fully inside the touchscreen at every aspect ratio. */
+.left-hud{left:clamp(40px,4vw,64px);transform-origin:center;transform:translate(-50%,-50%) rotate(90deg);}
+.right-hud{right:clamp(40px,4vw,64px);transform-origin:center;transform:translate(50%,-50%) rotate(-90deg);}
+.cover-panel.cursed-cover{background:linear-gradient(0deg,#030a13cc,transparent 70%),url('sea.webp') 47% center/cover;}
+.cursed-cover .storm-moon,.cursed-cover .ghost-ship,.cursed-cover .lightning-mark{display:none;}
+.cursed-cover::after{opacity:.2;}
+.key.is-active{transform:translateY(4px) scale(.98)!important;box-shadow:0 1px 0 #121815,0 3px 3px #0008,inset 0 1px 2px #fff7!important;}

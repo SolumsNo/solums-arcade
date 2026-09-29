@@ -1,0 +1,27 @@
+/* Naval brass, etched metal and weathered oak finish for every game screen. */
+:root{--ink:#e5e5cf;--bone:#d7d4b8;--gold:#d3b674;--panel:rgba(5,18,29,.96);}
+.menu-card,.result-card,.pause-card{border-color:#897b55;box-shadow:0 30px 100px #000a,inset 0 1px #e1d5ae44;}
+.settings-panel{background:linear-gradient(115deg,#101f2bed,#06131bf5),url('wood.webp') center/cover;}
+.settings-grid label{border:1px solid #81968b35;background:linear-gradient(130deg,#21343b77,#07131d88);border-radius:5px;}
+select{background:#0c1e2a;color:#ebecd6;border-color:#788d8566;}
+button{box-shadow:inset 0 1px #ecdda744,0 5px 12px #0005;border-radius:5px;}
+button:focus-visible,select:focus-visible{outline:3px solid #f5d593;outline-offset:3px;}
+#startBtn,#playAgainBtn,#resumeBtn{background:linear-gradient(#d4bb80,#a58b53);color:#15232a;text-shadow:0 1px #fff4;box-shadow:inset 0 1px #fff4,0 5px 16px #0007;}
+.player-hud{background:linear-gradient(120deg,#071a29e8,#0b202bc9);border-color:#a7bca366;box-shadow:0 4px 22px #0006,inset 0 1px #d2e1d41c;border-radius:4px;}
+.player-hud strong{color:#f6efce;text-shadow:0 2px 4px #0009;}
+#player1Hud{border-left:3px solid #7acee3;}
+#player2Hud{border-right:3px solid #ed9d83;}
+#toast{color:#f8ecc9;background:linear-gradient(#152a35eb,#0a1924ed);border:1px solid #cdb5748c;box-shadow:0 8px 24px #0007;text-shadow:0 2px 4px #000;}
+.cover-title h1{text-shadow:0 2px 0 #372b1a,0 5px 14px #000;}
+.instructions{color:#cbd8d4;line-height:1.55;}
+#countdownText{color:#f3e1af;text-shadow:0 0 50px #8ee1e64d,0 5px 12px #000;}
+@media(max-width:680px){.player-hud{min-width:125px;max-width:38vw;padding:9px 10px;}.player-hud strong{font-size:1.8rem;}.cover-panel{min-height:310px;}}
+
+/* Mutiny ends the round: a locked cell instead of a victory celebration. */
+.jail .dialog { border-color:#9d6248; background:radial-gradient(ellipse at top,#27313a,#090e14 75%); }
+.jail h2 { color:#eead78; }
+.jail .stats-grid { display:block; }
+.jail-bars { height:120px; max-width:390px; margin:12px auto 22px; border:8px ridge #4a5359; background:repeating-linear-gradient(90deg,transparent 0 38px,#121b22 39px,#8c9797 43px,#243039 49px,transparent 52px),radial-gradient(ellipse,#40545b,#050a10); box-shadow:inset 0 0 25px #000; }
+.jail-bars span { font-size:76px; color:#bba988; opacity:.5; }
+
+#toast.compact{top:66%;font-size:clamp(14px,1.7vw,20px);padding:9px 16px;max-width:82vw;letter-spacing:.025em;}
