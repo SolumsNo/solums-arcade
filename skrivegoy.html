@@ -1010,6 +1010,7 @@ body {
   </style>
 <link rel="stylesheet" href="assets/finish.css">
 <script src="assets/art.js"></script>
+<link rel="stylesheet" href="assets/own-voice.css">
 </head>
 <body>
   <noscript>Skrivegøy trenger JavaScript for å fungere.</noscript>
@@ -2383,8 +2384,19 @@ window.__SKRIVEGOY_AUDIO={"audio/letters/a.wav":"data:audio/wav;base64,UklGRgggA
       .replaceAll('"', '&quot;')
       .replaceAll("'", '&#039;');
   }
+  window.SkrivegoyVoiceAPI = {
+    setLetterSource(letter, url) {
+      if (!LETTER_AUDIO_KEYS.includes(letter)) return;
+      const id = `letter:${letter}`;
+      (state.soundPools.get(id) || []).forEach(audio => { audio.pause(); audio.removeAttribute('src'); audio.load(); });
+      createSoundPool(id, url || `audio/letters/${letter}.wav`, 4);
+    },
+    playLetter(letter) { if (LETTER_AUDIO_KEYS.includes(letter)) playPool(`letter:${letter}`); },
+    getVolume() { return state.settings.volume; }
+  };
 })();
 
   </script>
+<script src="assets/own-voice.js"></script>
 </body>
 </html>
